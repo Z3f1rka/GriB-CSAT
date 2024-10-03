@@ -8,4 +8,4 @@ class Admin(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'admins'
 
     uuid = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"), nullable=False, primary_key=True)
-    requests = sqlalchemy.Column(sqlalchemy.String)
+    requests = sqlalchemy.Column(sqlalchemy.String, default=None)

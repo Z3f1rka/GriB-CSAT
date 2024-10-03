@@ -11,10 +11,10 @@ class User(SqlAlchemyBase, SerializerMixin):
 
     uuid = sqlalchemy.Column(sqlalchemy.String,
                            primary_key=True)
-    role = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    role = sqlalchemy.Column(sqlalchemy.String, default='user')
     email = sqlalchemy.Column(sqlalchemy.String, unique=True, nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True)  # way to file
+    avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)  # way to file
     registration_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
-    phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)

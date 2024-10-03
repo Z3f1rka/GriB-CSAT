@@ -8,4 +8,4 @@ class Vendor(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'vendors'
 
     uuid = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"), nullable=False, primary_key=True)
-    products = sqlalchemy.Column(sqlalchemy.String)
+    products = sqlalchemy.Column(sqlalchemy.String, default=None)
