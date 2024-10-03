@@ -60,20 +60,25 @@ def get_jwt_payload(token: str):
         return type(invalid_token).__name__
 
 
-def make_session(user_id) -> str:
+def make_session(user_id, role) -> str:
     db_sess = db_session.create_session()
     users_sessions = db_sess.query(Session).filter(Session.user_id == user_id).all()
     refresh_token = None
+
     if any(True for i in users_sessions if i.user_id == user_id):
         refresh_token = db_sess.query(Session).filter(Session.user_id == user_id).first().refresh_token
+        jti = get_jwt_payload(refresh_token)['jti']
         db_sess.delete(db_sess.query(Session).filter(Session.user_id == user_id).first())
     if not refresh_token:
+        jti = str(uuid4())
         refresh_token = create_jwt({
             'type': "jwt_refresh",
             'exp': datetime.now(timezone.utc) + refresh_token_life_time,
-            'jti': str(uuid4()),
+            'jti': jti,
+            'role': role
         })
     refresh_session = Session(
+        uuid=jti,
         user_id=user_id,
         refresh_token=refresh_token
     )
@@ -106,7 +111,6 @@ def change_role(uuid: str, role: str):
 @app.route('/api/auth/register', methods=['POST'])
 def register():
     sess = db_session.create_session()
-    a = {}
     uuid = str(uuid4())
     data = request.json
     data['role'] = data.get('role') if data.get('role') else 'user'
@@ -134,8 +138,44 @@ def register():
         'sub': uuid,
         'role': data['role']
     })
-    refresh_token = make_session(uuid)
+    refresh_token = make_session(uuid, data['role'])
     return {'refresh_token': refresh_token, 'access_token': access_token}
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    sess = db_session.create_session()
+    data = request.json
+    user = sess.query(User).filter(User.name == data['name']).first()
+    if not user:
+        return make_response("User not found", 404)
+    elif not check_password_hash(user.hashed_password, data['pswd']):
+        return make_response("Wrong password", 400)
+    else:
+        access_token = create_jwt({
+            'type': "jwt_access",
+            'exp': datetime.now(timezone.utc) + access_token_life_time,
+            'sub': user.uuid,
+            'role': user.role
+        })
+        refresh_token = make_session(user.uuid, user.role)
+        return {'refresh_token': refresh_token, 'access_token': access_token}
+
+@app.route('/api/auth/refresh', methods=['POST'])
+def refresh():
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(data['refresh_token'])
+    if type(payload) != type(dict()):
+        return payload
+    session = sess.query(Session).filter(Session.uuid == payload['jti']).first()
+    access_token = create_jwt({
+        'type': "jwt_access",
+        'exp': datetime.now(timezone.utc) + access_token_life_time,
+        'sub': session.user_id,
+        'role': payload['role']
+    })
+    return {'refresh_token': data['refresh_token'], 'access_token': access_token}
 
 
 if __name__ == "__main__":
