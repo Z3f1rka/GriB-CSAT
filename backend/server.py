@@ -108,6 +108,7 @@ def change_role(uuid: str, role: str):
         )
     sess.commit()
 
+
 @app.route('/api/auth/register', methods=['POST'])
 def register():
     sess = db_session.create_session()
@@ -161,6 +162,7 @@ def login():
         refresh_token = make_session(user.uuid, user.role)
         return {'refresh_token': refresh_token, 'access_token': access_token}
 
+
 @app.route('/api/auth/refresh', methods=['POST'])
 def refresh():
     sess = db_session.create_session()
@@ -176,6 +178,28 @@ def refresh():
         'role': payload['role']
     })
     return {'refresh_token': data['refresh_token'], 'access_token': access_token}
+
+
+@app.route("/api/products")
+def products():
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(data['access_token'])
+    if type(payload) != type(dict()):
+        return payload
+    products = sess.query(Product).all()
+    res = []
+    for product in products:
+        photos = []
+        for photo in product.photos:
+            photos.append(photo)
+        el = {"uuid": product.uuid,
+              "title": product.title,
+              "img": photos}
+        res.append(el)
+    slice = tuple(data['photos'].split())
+    res = res[slice[0]:slice[1]]
+    return res
 
 
 if __name__ == "__main__":
