@@ -4,7 +4,7 @@ import Search from '../components/Search.vue';
 import Card from '../components/Card.vue';
 
 const result = ref("x")
-const cards = ref([{ 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 1 }, { 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 2 }])
+const cards = ref([{ 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 1 }, { 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 2 }, { 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 1 }, { 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 2 }, { 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 1 }, { 'img': '/gendalf.jpg', 'title': 'Гель для душа женский парфюмированный и вообще блин класс Gendalf core.. ', 'id': 2 }])
 </script>
 <template>
     <div class="text-center">
@@ -12,7 +12,7 @@ const cards = ref([{ 'img': '/gendalf.jpg', 'title': 'Гель для душа �
         <div class="line">
             <h1 style="font-size: 26px;" class="mt-9 mb-1">По вашему запросу найдено {{ result }} результатов:</h1>
         </div>
-        <div class="mx-9 grid-flow-col justify-items-center justify-center" style=" ">
+        <div class="mx-9 grid-flow-col text-start">
             <div style="display: flex; flex-wrap: wrap;" class="grid grid-cols-5 text-start justify-around">
                 <Card v-for="item in cards" :key="item.id" :title="item.title" :id="item.id" :img="item.img" />
             </div>
@@ -28,7 +28,7 @@ const cards = ref([{ 'img': '/gendalf.jpg', 'title': 'Гель для душа �
     transform: translateY(0.2rem);
 }
 span:focus-within{
-    border: 1px solid #4e525b79;
+    border: 1px solid #00BC72;
 }
 .icon {
     position: relative;
@@ -46,7 +46,6 @@ span:focus-within{
   display: block;
   width: 20cm;
   margin: 20px auto;
-  padding-left: 2%;
   background: #E5E5E5;
   background-size: 15px 15px;
   font-size: 26px;

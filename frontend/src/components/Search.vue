@@ -1,10 +1,18 @@
+<script setup>
+
+
+function search() {
+    console.log('Поиск')
+}
+</script>
+
 <template>
-    <span class="input text-center my-10 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500  w-full rounded sm:text-sm focus:ring-1 relative">
+    <span class="input text-center my-10 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 w-full rounded sm:text-sm focus:ring-1 relative">
             <div class="grid grid-rows-1 grid-cols-12">
-                <div class="grid text-left col-span-11 mx-5">
-                        <input class="outline-none p-0" style="background: #E5E5E5; resize: vertical;" placeholder="Поиск " />
+                <div class="grid text-left col-span-11">
+                        <input class="outline-none p-0 pl-11" style="background: #E5E5E5; resize: vertical;" placeholder="Поиск " />
                 </div>
-                <div class="grid text-right">
+                <div @click="search" class="grid text-right">
                     <img src="/search.png" class="icon text-align-right self-center">
                 </div>
             </div>
@@ -19,7 +27,7 @@
     display: inline-flex;
 }
 span:focus-within{
-    border: 1px solid #4e525b79;
+    border: 1px solid #00BC72;
 }
 .icon {
     position: relative;
@@ -37,7 +45,6 @@ span:focus-within{
   display: block;
   width: 20cm;
   margin: 20px auto;
-  padding-left: 2%;
   background: #E5E5E5;
   background-size: 15px 15px;
   font-size: 26px;
