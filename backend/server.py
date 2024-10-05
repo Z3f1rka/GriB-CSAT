@@ -1,4 +1,5 @@
 # flask imports
+from crypt import methods
 from datetime import datetime, timedelta, timezone
 from flask import Flask, jsonify, request, redirect, make_response
 from flask_cors import CORS
@@ -180,7 +181,7 @@ def refresh():
     return {'refresh_token': data['refresh_token'], 'access_token': access_token}
 
 
-@app.route("/api/products")
+@app.route("/api/products", methods=['GET'])
 def products():
     sess = db_session.create_session()
     data = request.json
