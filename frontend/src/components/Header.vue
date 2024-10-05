@@ -1,28 +1,15 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
-    <div style="background-color: #01BB72;">
-        <header class="box" ref="header_height">
-            <div>
-                <img class='logo' src="/logo.png" />
-            </div>
-        </header>
+  <header class="bg-zinc-900 text-white items-center">
+    <div class="flex justify-between">
+      <div class="md:h-20 sm:h-18">
+        <img src="/logo.svg" class="w-full h-full" />
+      </div>
+      <div class="grid grid-rows-1 grid-cols-2 items-center pr-20 gap-4 w-1/4">
+        <button class="bg-main md:h-3/5 w-full rounded"></button>
+        <button class="bg-main md:h-3/5 w-full rounded"></button>
+      </div>
     </div>
+  </header>
 </template>
-<style scoped>  
-header {
-  background-color: #01BB72;
-  top: 0;
-  z-index: 999;
-  width: 100%;
-  position: sticky;
-  padding: 0.4%;
-  padding-left: 2%;
-}
-.logo {
-    width: 135px;
-    height: 72px;
-    
-}
-</style>
