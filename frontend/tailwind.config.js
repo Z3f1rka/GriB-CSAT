@@ -7,7 +7,9 @@ export default {
     "./src/**/*.{js,jsx,vue}",
   ],
   theme: {
-    extend: { colors: { main: "#01bb72", secondary: "#074444" } },
+    extend: {
+      colors: { main: "#01bb72", secondary: "#074444", tgray: "#50525B" },
+    },
   },
   plugins: [],
 };
