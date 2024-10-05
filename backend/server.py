@@ -1,5 +1,4 @@
 # flask imports
-from crypt import methods
 from datetime import datetime, timedelta, timezone
 from flask import Flask, jsonify, request, redirect, make_response
 from flask_cors import CORS
@@ -192,13 +191,13 @@ def products():
     res = []
     for product in products:
         photos = []
-        for photo in product.photos:
+        for photo in product.photos.split(";"):
             photos.append(photo)
         el = {"uuid": product.uuid,
               "title": product.title,
               "img": photos}
         res.append(el)
-    slice = tuple(data['photos'].split())
+    slice = tuple(map(int, data['photos'].split("-")))
     res = res[slice[0]:slice[1]]
     return res
 

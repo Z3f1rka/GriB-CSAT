@@ -12,7 +12,8 @@ def fill_product():
     product = Product(
         uuid=str(uuid4()),
         vendor_id='2da54a9d-e52b-47df-9d9a-c25483bfd138',
-        title="Tea"
+        title="Tea",
+        photos="photka"
     )
     sess.add(product)
     sess.commit()
