@@ -186,7 +186,7 @@ def products():
     data = request.json
     payload = get_jwt_payload(data['access_token'])
     if type(payload) != type(dict()):
-        return payload
+        return make_response(payload, 401)
     products = sess.query(Product).all()
     res = []
     for product in products:
