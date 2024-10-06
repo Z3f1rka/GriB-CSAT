@@ -27,7 +27,7 @@ refresh_token_life_time = timedelta(days=30)
 CORS(app)
 
 
-def create_jwt(payload: dict):
+def create_jwt(payload: dict) -> str:
     """
     This function generates a jwt
 
@@ -43,10 +43,10 @@ def create_jwt(payload: dict):
     for param in payload.copy().keys():
         if not payload[param]:
             payload.pop(param)
-    return jwt.encode(payload, SECRET_KEY, algorithm=ENCRYPT_ALG)
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm=ENCRYPT_ALG)
 
 
-def get_jwt_payload(token: str):
+def get_jwt_payload(token: str) -> dict | str:
     """
     This function decodes token
     if token invalid :return: name of error
@@ -54,7 +54,7 @@ def get_jwt_payload(token: str):
     :param token: str
     """
     try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=ENCRYPT_ALG)
+        decoded = jwt.decode(token, JWT_SECRET_KEY, algorithms=ENCRYPT_ALG)
         return decoded
     except jwt.InvalidTokenError as invalid_token:
         return type(invalid_token).__name__
@@ -87,7 +87,7 @@ def make_session(user_id, role) -> str:
     return refresh_token
 
 
-def change_role(uuid: str, role: str):
+def change_role(uuid: str, role: str) -> None:
     sess = db_session.create_session()
     user = sess.query(User).filter(User.uuid == uuid).first()
     user.role = role
