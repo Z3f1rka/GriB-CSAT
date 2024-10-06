@@ -1,19 +1,23 @@
 <script setup>
-
-
 function search() {
     console.log('Поиск')
 }
 </script>
-
 <template>
     <span class="input text-center my-10 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 w-full rounded sm:text-sm focus:ring-1 relative">
             <div class="grid grid-rows-1 grid-cols-12">
                 <div class="grid text-left col-span-11">
-                        <input class="outline-none p-0 pl-11" style="background: #E5E5E5; resize: vertical;" placeholder="Поиск " />
+                        <input 
+                            class="outline-none p-0 pl-11" 
+                            style="background: #E5E5E5; resize: vertical;" 
+                            placeholder="Поиск "
+                        />
                 </div>
                 <div @click="search" class="grid text-right">
-                    <img src="/search.png" class="icon text-align-right self-center">
+                    <img 
+                        src="/search.png" 
+                        class="icon text-align-right self-center"
+                    />
                 </div>
             </div>
         </span>
