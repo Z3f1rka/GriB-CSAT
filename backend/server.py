@@ -5,6 +5,7 @@ from flask_cors import CORS
 import jwt
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 
 # config imports
@@ -25,7 +26,7 @@ access_token_life_time = timedelta(hours=1)
 refresh_token_life_time = timedelta(days=30)
 CORS(app)
 
-
+# Authentification
 def create_jwt(payload: dict) -> str:
     """
     This function generates a jwt
@@ -106,6 +107,11 @@ def register():
     sess = db_session.create_session()
     uuid = str(uuid4())
     data = request.json
+    if sess.query(User).filter(User.name == data["name"]).first():
+        return make_response("Пользователь с таким именем существует")
+    if sess.query(User).filter(User.email == data["email"]).first():
+        return make_response("Пользователь с таким именем существует")
+
     data['role'] = data.get('role') if data.get('role') else 'user'
     if data['pswd'] == data['pswd_repeated']:
         data['hashed_password'] = generate_password_hash(data['pswd'])
@@ -118,10 +124,6 @@ def register():
     if data['role'] == "admin":
         sess.add(
             Admin(uuid=uuid)
-        )
-    elif data['role'] == "vendor":
-        sess.add(
-            Vendor(uuid=uuid)
         )
     sess.commit()
 
@@ -175,8 +177,8 @@ def refresh():
 @app.route("/api/products", methods=['GET'])
 def products():
     sess = db_session.create_session()
-    data = request.json
-    payload = get_jwt_payload(data['access_token'])
+    data = request.headers.get("bearer")
+    payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
         return make_response(payload, 401)
     products = sess.query(Product).all()
@@ -192,6 +194,46 @@ def products():
     slice = tuple(map(int, data['photos'].split("-")))
     res = res[slice[0]:slice[1]]
     return res
+
+
+@app.route("/api/product/<int:id>", methods=["GET"])
+def product(id: int):
+    data = request.headers.get("bearer")
+    jwt = get_jwt_payload(data)
+    if type(jwt) != type(dict()):
+        return make_response(jwt, 401)
+    sess = db_session.create_session()
+    product = sess.query(Product).filter(Product.uuid == id).first()
+    res = {"ListImg": [],
+           "title": product.title,
+           "vendor": product.vendor.title,
+           "characteristic": None,
+           "description": product.description,
+           "feedback": []}
+    return res
+
+
+@app.route("/api/upload_image", methods=["POST", "GET"])
+def upload_image():
+    if request.method == "POST":
+        file = request.files["file"]
+        file.save(file.filename)
+        return "saved"
+    if request.method == "GET":
+        return """<!doctype html>
+<html>
+  <head>
+    <title>File Upload</title>
+  </head>
+  <body>
+    <h1>File Upload</h1>
+    <form method="POST" action="" enctype="multipart/form-data">
+      <p><input type="file" name="file"></p>
+      <p><input type="submit" value="Submit"></p>
+    </form>
+  </body>
+</html>"""
+
 
 
 if __name__ == "__main__":
