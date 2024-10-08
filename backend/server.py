@@ -119,10 +119,7 @@ def register():
         sess.add(
             Admin(uuid=uuid)
         )
-    elif data['role'] == "vendor":
-        sess.add(
-            Vendor(uuid=uuid)
-        )
+        
     sess.commit()
 
     access_token = create_jwt({
