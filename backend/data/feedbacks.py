@@ -15,3 +15,4 @@ class Feedback(SqlAlchemyBase, SerializerMixin):
     form = sqlalchemy.Column(sqlalchemy.String, default=None)
     photos = sqlalchemy.Column(sqlalchemy.String, default=None)
     public_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
+    rating = sqlalchemy.Column(sqlalchemy.Float, default=0)

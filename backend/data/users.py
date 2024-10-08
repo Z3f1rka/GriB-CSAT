@@ -18,3 +18,4 @@ class User(SqlAlchemyBase, SerializerMixin):
     avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)  # way to file
     registration_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
     phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)
+    product = orm.relationship('Product', back_populates='vendor')

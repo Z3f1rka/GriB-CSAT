@@ -12,7 +12,7 @@ class Product(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'products'
 
     uuid = sqlalchemy.Column(sqlalchemy.String, primary_key=True, nullable=False)
-    vendor_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("vendors.uuid"), nullable=False)
+    vendor_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"), nullable=False)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.Text, default=None)
     characteristics = sqlalchemy.Column(sqlalchemy.String, default=None)
@@ -22,3 +22,6 @@ class Product(SqlAlchemyBase, SerializerMixin):
     isaccepted = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     public_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
     category = sqlalchemy.Column(sqlalchemy.String, default=None)
+    rating = sqlalchemy.Column(sqlalchemy.Float, default=0)
+    number_of_feedbacks = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    vendor = orm.relationship('User')

@@ -16,7 +16,6 @@ from data import db_session
 from data.sessions import Session
 from data.admins import Admin
 from data.users import User
-from data.vendors import Vendor
 from data.products import Product
 from data.feedbacks import Feedback
 
@@ -92,19 +91,12 @@ def change_role(uuid: str, role: str) -> None:
     user = sess.query(User).filter(User.uuid == uuid).first()
     user.role = role
     adm = sess.query(Admin).filter(Admin.uuid == uuid).first()
-    ven = sess.query(Vendor).filter(Vendor.uuid == uuid).first()
     if adm:
         sess.delete(adm)
-    elif ven:
-        sess.delete(ven)
 
     if role == "admin":
         sess.add(
             Admin(uuid=uuid)
-        )
-    elif role == "vendor":
-        sess.add(
-            Vendor(uuid=uuid)
         )
     sess.commit()
 
