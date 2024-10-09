@@ -4,7 +4,7 @@ import Search from '../components/Search.vue';
 import Card from '../components/Card.vue';
 
 const SearchResult = ref('x')
-const ListCards = ref([])
+const ListCards = ref([{'title':'ttt', 'id':'1', 'img':'/gendalf.jpg'}])
 </script>
 <template>
     <div class="text-center">
