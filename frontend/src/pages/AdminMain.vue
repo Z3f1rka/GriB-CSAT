@@ -18,22 +18,26 @@ const ListCateg = ref([
 </script>
 <template>
   <div class="text-center">
-    <div class="grid grid-cols-2">
-      <div
-        class="bg-zinc-900 h-15 w-80 text-white text-3xl cursor-pointer"
+    <div class="border-b-2 border-zinc-900 mt-10 inline-flex">
+      <div 
+        class="bg-secondary h-15 w-80 text-main text-3xl cursor-pointer select-none" 
         @click="isCateg = false"
       >
         Запросы товаров
       </div>
       <div
-        class="bg-zinc-900 h-15 w-80 text-white text-3xl cursor-pointer"
+        class="bg-main h-15 w-80 text-white text-3xl cursor-pointer des-button select-none"
         @click="isCateg = true"
       >
         Категории
       </div>
     </div>
+      
+    <div>
     <Search />
     <div class="mx-9 content-center">
+      <div>
+        <transition>
       <div
         style="display: flex"
         class="justify-around text-start flex-wrap"
@@ -53,10 +57,12 @@ const ListCateg = ref([
           :id="item.id"
         />
       </div>
+      </transition>
+      <transition>
       <div
         style="display: flex"
         class="justify-around text-start flex-wrap"
-        v-else
+        v-if="isCateg == false"
       >
         <Card
           v-for="item in ListCards"
@@ -66,10 +72,26 @@ const ListCateg = ref([
           :img="item.img"
         />
       </div>
+    </transition>
+    </div>
+    </div>
     </div>
   </div>
 </template>
 <style scoped>
+.v-enter-active {
+    animation: added 0.5s;
+}
+.v-leave-active {
+  animation: added 0.3s reverse;
+}
+.fade-leave-active {
+    animation: added 0.5s;
+}
+.fade-enter-active {
+  animation: added 0.5s reverse;
+}
+
 .line::after {
   display: inline-block;
   content: "";
@@ -102,5 +124,15 @@ span:focus-within {
   border: none;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+@keyframes added {
+from {
+  margin-top: 5%;
+  translate: 0 -60px;
+}
+to {
+  margin-top: 0;
+  translate: 0 0px;
+}
 }
 </style>

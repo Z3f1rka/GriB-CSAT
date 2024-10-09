@@ -84,7 +84,7 @@ function data() {
       </div>
       <div
         @click="add()"
-        class="h-10 col-span-1 w-20 rounded bg-secondary text-main text-center cursor-pointer pt-2"
+        class="col-span-1 rounded bg-secondary text-main text-center cursor-pointer p-2 px-5"
       >
         <b> Добавить</b>
       </div>
@@ -94,14 +94,15 @@ function data() {
       <div
         class="bg-zinc-800 row-span-3 col-span-6 col-start-2 row-start-5 h-full w-full rounded flex justify-start p-2"
       >
+      <div style="display: flex;" class=" text-start flex-wrap content-start overflow-auto">
         <div
-          class="bg-main h-7 rounded-lg text-center text-white truncate cursor-pointer px-2 mx-2"
+          class="bg-main rounded-lg text-center text-white truncate cursor-pointer px-2 mx-2 select-none mb-1"
           v-for="char in charList"
           :key="char"
           @click="remove(char)"
         >
           {{ char }}
-        </div>
+    </div></div>
       </div>
       <div
         class="rounded row-span-1 col-span-4 col-start-3 row-start-8 h-10 w-full bg-main"
