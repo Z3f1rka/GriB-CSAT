@@ -16,7 +16,7 @@ function search() {
                 <div @click="search" class="grid text-right">
                     <img 
                         src="/search.png" 
-                        class="icon text-align-right self-center"
+                        class="icon text-align-right self-center noselect"
                     />
                 </div>
             </div>
