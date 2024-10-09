@@ -15,8 +15,8 @@ class User(SqlAlchemyBase, SerializerMixin):
     email = sqlalchemy.Column(sqlalchemy.String, unique=True, nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    avatar = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)  # way to file
     registration_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
     phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)
-    product = orm.relationship('Product', back_populates='vendor')
-    feedback = orm.relationship('Feedback', back_populates='user')
+    
+    products = orm.relationship('Product', back_populates='vendor')
+    feedbacks = orm.relationship('Feedback', back_populates='user')

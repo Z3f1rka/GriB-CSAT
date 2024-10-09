@@ -7,8 +7,10 @@ from sqlalchemy_serializer import SerializerMixin
 
 
 class Category(SqlAlchemyBase, SerializerMixin):
-    __tablename__ = 'category'
-
+    __tablename__ = 'categories'
+    
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False, primary_key=True)
-    characteristics = sqlalchemy.Column(sqlalchemy.String)
-    product = orm.relationship('Product', back_populates='characteristics')
+    
+    products = orm.relationship('CategoryProduct', back_populates='category')
+    criterion = orm.relationship('Criterion', back_populates='category')
