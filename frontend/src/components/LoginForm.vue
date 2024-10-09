@@ -5,74 +5,45 @@ import axios from "axios";
 import router from "../router";
 
 var name = ref("");
-var role = ref(false);
-var email = ref("");
 var password = ref("");
-var password_a = ref("");
 var err_name = ref("");
-var err_email = ref("");
 var err_pass = ref("");
-var err_end_pass = ref("");
 const name_validation = z
   .string()
   .max(30, { message: "Максимальная длина имени - 30 символов" });
-const email_validation = z
-  .string()
-  .email({ message: "Неверно указан адрес почты" });
-const password_validation = z.string();
-var can_reg = true;
+var can_log = true;
 var err = ref("");
 
 function data() {
-  can_reg = true;
+  can_log = true;
   console.log(
     name.value,
-    email.value,
     password.value,
-    password_a.value,
-    role.value
   );
   if (!name_validation.safeParse(name.value).success) {
     err_name.value = "Максимальная длина имени - 30 символов";
-    can_reg = false;
+    can_log = false;
   } else {
     err_name.value = "";
   }
   if (name.value == "") {
-    can_reg = false;
+    can_log = false;
     err_name.value = "Обязательное поле";
   }
-  if (!email_validation.safeParse(email.value).success) {
-    can_reg = false;
-    err_email.value = "Неправильно указан адрес почты";
-  } else {
-    err_email.value = "";
-  }
-  if (email.value == "") {
-    can_reg = false;
-    err_email.value = "Обязательное поле";
-  }
-  if (password.value == password_a.value) {
-    err_end_pass.value = "";
-  } else {
-    can_reg = false;
-    err_end_pass.value = "Пароли не совпадают";
-  }
+
   if (password.value == "") {
-    can_reg = false;
+    can_log = false;
     err_pass.value = "Обязательное поле";
   } else {
     err_pass.value = "";
   }
-  if (can_reg) {
+  if (can_log) {
     const values = {
       name: name.value,
-      email: email.value,
-      pswd: password.value,
-      pswd_repeated: password_a.value,
+      pswd: password.value
     };
     axios
-      .post("http://127.0.0.1:8080" + "/api/auth/register", values)
+      .post("http://127.0.0.1:8080" + "/api/auth/login", values)
       .then((response) => {
         err.value = response.data.error;
         if (err.value) {
@@ -90,7 +61,7 @@ function data() {
 <template>
   <div class="bg-zinc-900 h-2/3 w-full rounded">
     <div
-      class="grid grid-cols-8 grid-rows-10 items-center h-full w-full gap-10 py-10"
+      class="grid grid-cols-8 grid-rows-5 items-center h-full w-full gap-10 py-10"
     >
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
         <input
@@ -107,37 +78,12 @@ function data() {
         <input
           type="text"
           class="w-full h-full px-5 rounded"
-          placeholder="Почта"
-          v-model="email"
-        />
-      </div>
-      <div class="h-10 col-span-6 col-start-2">
-        <h1 class="text-main">{{ err_email }}</h1>
-      </div>
-      <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
-        <input
-          type="text"
-          class="w-full h-full px-5 rounded"
           placeholder="Пароль"
           v-model="password"
         />
       </div>
       <div class="h-10 col-span-6 col-start-2">
         <h1 class="text-main">{{ err_pass }}</h1>
-      </div>
-      <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
-        <input
-          type="text"
-          class="w-full h-full px-5 rounded"
-          placeholder="Повторите пароль"
-          v-model="password_a"
-        />
-      </div>
-      <div class="h-10 col-span-6 col-start-2">
-        <h1 class="text-main">{{ err_end_pass }}</h1>
-      </div>
-      <div class="col-span-6 col-start-2">
-        <input type="checkbox" v-model="role" />
       </div>
       <div
         class="rounded row-span-1 col-span-4 col-start-3 h-10 w-full bg-main"

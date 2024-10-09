@@ -22,7 +22,7 @@ from data.feedbacks import Feedback
 
 
 app = Flask(__name__)
-access_token_life_time = timedelta(hours=1)
+access_token_life_time = timedelta(seconds=10)
 refresh_token_life_time = timedelta(days=30)
 CORS(app)
 
@@ -177,23 +177,12 @@ def refresh():
 @app.route("/api/products", methods=['GET'])
 def products():
     sess = db_session.create_session()
-    data = request.headers.get("bearer")
+    data = request.headers.get("authorization")
+    print(data)
     payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
         return make_response(payload, 401)
-    products = sess.query(Product).all()
-    res = []
-    for product in products:
-        photos = []
-        for photo in product.photos.split(";"):
-            photos.append(photo)
-        el = {"uuid": product.uuid,
-              "title": product.title,
-              "img": photos}
-        res.append(el)
-    slice = tuple(map(int, data['photos'].split("-")))
-    res = res[slice[0]:slice[1]]
-    return res
+    return "OK"
 
 
 @app.route("/api/product/<int:id>", methods=["GET"])
