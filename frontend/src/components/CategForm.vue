@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { z } from "zod";
 import router from "../router";
+import { auth_post } from "../requests";
 
 var title = ref("");
 var new_char = ref("");
@@ -30,7 +31,7 @@ function add() {
     err_char.value = "Такая характеристика уже есть";
     can_add = false;
   }
-  if (new_char.value == ""){
+  if (new_char.value == "") {
     can_add = false;
     err_char.value = "Нельзя отправить пустую строку";
   }
@@ -40,14 +41,20 @@ function add() {
   }
 }
 function data() {
-    can_log = true;
-    if (!title_validation.safeParse(title.value).success){
-        can_log = false;
-        err_title.value = "Максимальная длина - 20 символов";
+  can_log = true;
+  if (!title_validation.safeParse(title.value).success) {
+    can_log = false;
+    err_title.value = "Максимальная длина - 20 символов";
+  }
+  if (can_log) {
+    var resp_data = auth_post("/", {
+      title: title.value,
+      list: charList._rawValue,
+    });
+    if (resp_data) {
+      router.push("/admin");
     }
-    if (can_log){
-
-    }
+  }
 }
 </script>
 
@@ -75,7 +82,8 @@ function data() {
           v-model="new_char"
         />
       </div>
-      <div @click="add()"
+      <div
+        @click="add()"
         class="h-10 col-span-1 w-20 rounded bg-secondary text-main text-center cursor-pointer pt-2"
       >
         <b> Добавить</b>
