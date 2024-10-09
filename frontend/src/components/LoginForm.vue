@@ -16,10 +16,6 @@ var err = ref("");
 
 function data() {
   can_log = true;
-  console.log(
-    name.value,
-    password.value,
-  );
   if (!name_validation.safeParse(name.value).success) {
     err_name.value = "Максимальная длина имени - 30 символов";
     can_log = false;

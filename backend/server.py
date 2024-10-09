@@ -174,7 +174,7 @@ def refresh():
     return {'refresh_token': data['refresh_token'], 'access_token': access_token}
 
 
-@app.route("/api/products", methods=['GET'])
+@app.route("/api/products", methods=['POST'])
 def products():
     sess = db_session.create_session()
     data = request.headers.get("authorization")

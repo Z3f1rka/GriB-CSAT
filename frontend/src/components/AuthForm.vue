@@ -22,16 +22,10 @@ const email_validation = z
 const password_validation = z.string();
 var can_reg = true;
 var err = ref("");
+var data_role = "user";
 
 function data() {
   can_reg = true;
-  console.log(
-    name.value,
-    email.value,
-    password.value,
-    password_a.value,
-    role.value
-  );
   if (!name_validation.safeParse(name.value).success) {
     err_name.value = "Максимальная длина имени - 30 символов";
     can_reg = false;
@@ -64,19 +58,22 @@ function data() {
   } else {
     err_pass.value = "";
   }
+  if (role) {
+    data_role = "vendor";
+  }
   if (can_reg) {
     const values = {
       name: name.value,
       email: email.value,
       pswd: password.value,
       pswd_repeated: password_a.value,
+      role: data_role
     };
     axios
       .post("http://127.0.0.1:8080" + "/api/auth/register", values)
       .then((response) => {
         err.value = response.data.error;
         if (err.value) {
-          console.log(err.value);
         } else {
           localStorage.setItem("access_token", response.data.access_token);
           localStorage.setItem("refresh_token", response.data.refresh_token);
@@ -136,8 +133,11 @@ function data() {
       <div class="h-10 col-span-6 col-start-2">
         <h1 class="text-main">{{ err_end_pass }}</h1>
       </div>
-      <div class="col-span-6 col-start-2">
-        <input type="checkbox" v-model="role" />
+      <div class="col-span-1 col-start-2">
+        <input type="checkbox" v-model="role" style="width: 40px; height: 40px;"/>
+      </div>
+      <div class="col-span-5 col-start-3">
+        <h1 class="text-white text-lg">- Я собираюсь выставлять свои товары</h1>
       </div>
       <div
         class="rounded row-span-1 col-span-4 col-start-3 h-10 w-full bg-main"
