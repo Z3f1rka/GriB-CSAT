@@ -4,7 +4,6 @@ from blueprints.auth import get_jwt_payload
 # db imports
 from data import db_session
 from data.sessions import Session
-from data.admins import Admin
 from data.users import User
 from data.products import Product
 from data.feedbacks import Feedback

@@ -14,7 +14,6 @@ from server_conf import ENCRYPT_ALG, JWT_SECRET_KEY
 # db imports
 from data import db_session
 from data.sessions import Session
-from data.admins import Admin
 from data.users import User
 
 auth = Blueprint("authentification", "auth")
@@ -87,14 +86,6 @@ def change_role(uuid: str, role: str) -> None:
     sess = db_session.create_session()
     user = sess.query(User).filter(User.uuid == uuid).first()
     user.role = role
-    adm = sess.query(Admin).filter(Admin.uuid == uuid).first()
-    if adm:
-        sess.delete(adm)
-
-    if role == "admin":
-        sess.add(
-            Admin(uuid=uuid)
-        )
     sess.commit()
 
 
@@ -103,6 +94,8 @@ def register():
     sess = db_session.create_session()
     uuid = str(uuid4())
     data = request.json
+    if not data["pswd"] or not (0 < len(data["name"]) <= 30) or not data["email"]:
+        return make_response("Password required", 400)
     if sess.query(User).filter(User.name == data["name"]).first():
         return make_response("Пользователь с таким именем существует")
     if sess.query(User).filter(User.email == data["email"]).first():
@@ -116,11 +109,6 @@ def register():
     sess.add(
         User(uuid=uuid, **data)
     )
-
-    if data['role'] == "admin":
-        sess.add(
-            Admin(uuid=uuid)
-        )
     sess.commit()
 
     access_token = create_jwt({
