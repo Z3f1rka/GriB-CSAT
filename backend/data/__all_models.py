@@ -3,3 +3,4 @@ from . import admins
 from . import users
 from . import products
 from . import feedbacks
+from . import characteristics

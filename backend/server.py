@@ -19,7 +19,7 @@ from data.admins import Admin
 from data.users import User
 from data.products import Product
 from data.feedbacks import Feedback
-
+from data.characteristics import Characteristic
 
 app = Flask(__name__)
 access_token_life_time = timedelta(hours=1)
@@ -187,7 +187,7 @@ def products():
         photos = []
         for photo in product.photos.split(";"):
             photos.append(photo)
-        el = {"uuid": product.uuid,
+        el = {"id": product.id,
               "title": product.title,
               "img": photos}
         res.append(el)
@@ -204,12 +204,22 @@ def product(id: int):
         return make_response(payload, 401)
     sess = db_session.create_session()
     product = sess.query(Product).filter(Product.uuid == id).first()
+    feedbacks = sess.query(Feedback).filter(Feedback.uuid in product.feedback).all()
+    for_res = []
+    for feedback in feedbacks:
+        for_res.append({'name': feedback.user.name,
+                        'text': feedback.text,
+                        'img': feedback.photos,
+                        'rating': str(feedback.rating),
+                        'date': feedback.public_date,
+                        'user_id': feedback.user_id})
     res = {"ListImg": [],
            "title": product.title,
-           "vendor": product.vendor.title,
+           "vendor": product.vendor.name,
            "characteristic": None,
            "description": product.description,
-           "feedback": []}
+           "product_type": product.product_type,
+           "feedback": for_res}
     return res
 
 
@@ -243,4 +253,8 @@ def upload_image():
 
 if __name__ == "__main__":
     db_session.global_init('db/CSAT_db.db')
+    db_sess = db_session.create_session()
+    res = db_sess.query(Product).filter(Product.id == 1).first().characteristics
+    res2 = db_sess.query(Characteristic).filter(Characteristic.id == int(res)).first().title
+    print(res2)
     app.run(port=8080, host="127.0.0.1")
