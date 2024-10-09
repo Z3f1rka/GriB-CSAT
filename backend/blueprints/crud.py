@@ -1,28 +1,39 @@
 from flask import Blueprint, jsonify, request, redirect, make_response
-from blueprints.auth import get_jwt_payload
+from blueprints.auth import get_jwt_payload, make_session
+from werkzeug.utils import secure_filename
+import os
 
 # db imports
 from data import db_session
-from data.sessions import Session
-from data.users import User
-from data.products import Product
-from data.feedbacks import Feedback
 from data.category import Category
+
+ALLOWED_MEDIA = []
+DESTINATION = ""
+
 
 crud = Blueprint("CRUD", "crud")
 
-@crud.route("/upload_image", methods=["POST", "GET"])
-def upload_image():
-    """
+@crud.route("/upload_images", methods=["POST", "GET"])
+def upload_images():
     sess = db_session.create_session()
     data = request.headers.get("authorization")
     payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
-        return make_response(payload, 401)"""
+        return make_response(payload, 401)
+    if payload["role"] != "vendor":
+        return make_response("The requester is not vendor", 403)
     if request.method == "POST":
-        file = request.files["file"]
-        file.save(file.filename)
-        return "saved"
+        if request.files:
+            for i, file in enumerate(request.files):
+                try:
+                    image = request.files[f"images[{i}]"]
+                    if image.content_type not in ALLOWED_MEDIA:
+                        return make_response("Unsupported Media Type", 415)
+                    image.save(os.path.join(DESTINATION), secure_filename(image.filename))
+                except (KeyError, FileNotFoundError):
+                    return jsonify("An error occurred while processing the file."), 500
+            return "saved"
+        return make_response("No files", 400)
     if request.method == "GET":
         return """<!doctype html>
 <html>
@@ -47,7 +58,7 @@ def add_category():
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     if payload['role'] != "admin":
-        return make_response("You are not admin", 400)
+        return make_response("The requester is not admin", 403)
     if sess.query(Category).filter(Category.title == data['title']).first():
         return make_response("This category is exists", 400)
     sess.add(Category(
