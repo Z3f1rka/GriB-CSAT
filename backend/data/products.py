@@ -14,8 +14,8 @@ class Product(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
     vendor_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"), nullable=False)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    description = sqlalchemy.Column(sqlalchemy.Text, default=None)
-    characteristics = sqlalchemy.Column(sqlalchemy.String, default=None)
+    description = sqlalchemy.Column(sqlalchemy.Text, default='Описание отсутсвует')
+    characteristics = sqlalchemy.Column(sqlalchemy.String, default=None) #'id1;id2;id3'
     feedback = sqlalchemy.Column(sqlalchemy.String, default='') # id1;id2
     photos = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     statistics = sqlalchemy.Column(sqlalchemy.String, default=None) # path to file
@@ -26,5 +26,4 @@ class Product(SqlAlchemyBase, SerializerMixin):
     number_of_feedbacks = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     product_type = sqlalchemy.Column(sqlalchemy.Boolean, default=1) # 1 - товар, 0 - услуга
     vendor = orm.relationship('User')
-    # characteristics = sqlalchemy.Column(sqlalchemy.String, nullable=False) # 'id1;id2;id3'
     characteristic_rating = sqlalchemy.Column(sqlalchemy.JSON) # [{'id': 1, 'rating': 5}, ...]

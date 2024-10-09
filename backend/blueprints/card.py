@@ -8,6 +8,10 @@ from data.admins import Admin
 from data.users import User
 from data.products import Product
 from data.feedbacks import Feedback
+from data.characteristics import Characteristic
+
+# random
+from random import sample
 
 card = Blueprint("cards", "card")
 
@@ -52,7 +56,6 @@ def product(id):
 
     for_res = []
     for feedback in feedbacks:
-        print(feedback)
         for_res.append({'name': feedback.user.name,
                         'text': feedback.text,
                         'rating': str(feedback.rating),
@@ -63,28 +66,36 @@ def product(id):
 
     listimg = []
     for i in range(len(photos)):
-        listimg.append({'id': i + 1, 'img': photos[i]})
+        listimg.append({'id': str(i + 1), 'img': photos[i]})
 
-    # user_characteristics = sess.query(Characteristic).all()
-    # random_choice = sample(user_characteristics, 3)
-    # user_characteristic = [i.title for i in random_choice]
-    user_characteristic = []
+    user_characteristics = sess.query(Characteristic).all()
+    random_choice = sample(user_characteristics, 3)
+    user_characteristic = [i.title for i in random_choice]
 
-    characteristics = sess.query(Product.characteristic_rating).all()
-    characteristics.sort(key=lambda x: x['rating'])
-    print(characteristics)
+    characteristics = sess.query(Product.characteristic_rating).all()[0][0]
+    characteristics.sort(key=lambda x: x['rating'], reverse=True)
+    minrating = sess.query(Characteristic).filter(characteristics[-1]['id'] == Characteristic.id).first()
+    mincount = characteristics[-1]['rating']
+    maxrating = sess.query(Characteristic).filter(characteristics[0]['id'] == Characteristic.id).first()
+    maxcount = characteristics[0]['rating']
+    
+    chars_id = product.characteristics.split(';')
+    chars = []
+    for i in chars_id:
+        title = sess.query(Characteristic).filter(i == Characteristic.id).first().title
+        chars.append({'id': i, 'text': title})
 
     res = {"ListImg": listimg,
            "title": product.title,
            'rating': product.rating,
-           'maxrating': {'text': '', 'count': 5},
-           'minrating': {'text': '', 'count': 1},
-           'minrating': {},
-           'characteristics': product.characteristics,
+           'maxrating': {'text': maxrating.title, 'count': maxcount},
+           'minrating': {'text': minrating.title, 'count': mincount},
            "vendor": product.vendor.name,
            "description": product.description,
            "product_type": product.product_type,
            "feedback": for_res,
-           'user_characteristic': user_characteristic
+           'user_characteristic': user_characteristic,
+           'characteristic': chars
            }
+    
     return res
