@@ -60,10 +60,10 @@ def add_category():
     if payload['role'] != "admin":
         return make_response("The requester is not admin", 403)
     if sess.query(Category).filter(Category.title == data['title']).first():
-        return make_response("This category is exists", 400)
+        return make_response("This category exists", 400)
     sess.add(Category(
         title=data['title'],
-        characteristics=';'.join(list(map(lambda x: x.lower(), data["chars"])))
+        criterions=';'.join(list(map(lambda x: x.lower(), data["chars"])))
     ))
     sess.commit()
     return make_response("OK", 200)
