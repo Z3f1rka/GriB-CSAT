@@ -160,10 +160,10 @@ def login():
 @app.route('/api/auth/refresh', methods=['POST'])
 def refresh():
     sess = db_session.create_session()
-    data = request.json
-    payload = get_jwt_payload(data['refresh_token'])
+    data = request.headers.get("authorization")
+    payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
-        return payload
+        return make_response(payload, 401)
     session = sess.query(Session).filter(Session.uuid == payload['jti']).first()
     access_token = create_jwt({
         'type': "jwt_access",
@@ -177,7 +177,7 @@ def refresh():
 @app.route("/api/products", methods=['GET'])
 def products():
     sess = db_session.create_session()
-    data = request.headers.get("bearer")
+    data = request.headers.get("authorization")
     payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
         return make_response(payload, 401)
@@ -198,10 +198,10 @@ def products():
 
 @app.route("/api/product/<int:id>", methods=["GET"])
 def product(id: int):
-    data = request.headers.get("bearer")
-    jwt = get_jwt_payload(data)
-    if type(jwt) != type(dict()):
-        return make_response(jwt, 401)
+    data = request.headers.get("authorization")
+    payload = get_jwt_payload(data)
+    if type(payload) != type(dict()):
+        return make_response(payload, 401)
     sess = db_session.create_session()
     product = sess.query(Product).filter(Product.uuid == id).first()
     res = {"ListImg": [],
@@ -215,6 +215,11 @@ def product(id: int):
 
 @app.route("/api/upload_image", methods=["POST", "GET"])
 def upload_image():
+    sess = db_session.create_session()
+    data = request.headers.get("authorization")
+    payload = get_jwt_payload(data)
+    if type(payload) != type(dict()):
+        return make_response(payload, 401)
     if request.method == "POST":
         file = request.files["file"]
         file.save(file.filename)
