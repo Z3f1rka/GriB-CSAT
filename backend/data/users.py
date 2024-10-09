@@ -19,3 +19,4 @@ class User(SqlAlchemyBase, SerializerMixin):
     registration_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
     phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)
     product = orm.relationship('Product', back_populates='vendor')
+    feedback = orm.relationship('Feedback', back_populates='user')
