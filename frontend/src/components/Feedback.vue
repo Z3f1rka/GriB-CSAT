@@ -3,7 +3,6 @@ import { ref, defineProps } from 'vue';
 import vue3starRatings from "vue3-star-ratings";
 
 const items = defineProps({
-    img: String,
     name: String,
     data: String,
     text: String,
@@ -16,14 +15,7 @@ const items = defineProps({
         <div class="flex grid-cols-12 grid-rows-1 justify-between">
             <div class="grid col-span-10">
                 <div class="flex">
-            <div>
-                <img 
-                    class="bg-no-repeat bg-cover rounded-full "
-                    style="aspect-ratio: 1 / 1; width: 60px;"
-                    :src="img"
-                />
-            </div>
-            <div class="ml-3 mt-1">
+            <div class="ml-1 mt-1">
                 <p class="text-xl text-main">{{ name }}</p>
                 <p class="text-l text-zinc-600">{{ data }}</p>
             </div>
