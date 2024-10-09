@@ -9,8 +9,8 @@ from sqlalchemy_serializer import SerializerMixin
 class User(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'users'
 
-    uuid = sqlalchemy.Column(sqlalchemy.String,
-                           primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, autoincrement=True,
+                           primary_key=True, nullable=False)
     role = sqlalchemy.Column(sqlalchemy.String, default='user')
     email = sqlalchemy.Column(sqlalchemy.String, unique=True, nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)

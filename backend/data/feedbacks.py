@@ -10,7 +10,7 @@ class Feedback(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'feedbacks'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
-    user_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"), nullable=False)
+    user_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.id"), nullable=False)
     text = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     form = sqlalchemy.Column(sqlalchemy.String, default=None)
     photos = sqlalchemy.Column(sqlalchemy.String, default=None)

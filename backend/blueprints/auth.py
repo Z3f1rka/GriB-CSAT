@@ -82,9 +82,9 @@ def make_session(user_id, role) -> str:
     return refresh_token
 
 
-def change_role(uuid: str, role: str) -> None:
+def change_role(id: str, role: str) -> None:
     sess = db_session.create_session()
-    user = sess.query(User).filter(User.uuid == uuid).first()
+    user = sess.query(User).filter(User.id == id).first()
     user.role = role
     sess.commit()
 
@@ -92,14 +92,13 @@ def change_role(uuid: str, role: str) -> None:
 @auth.route('/register', methods=['POST'])
 def register():
     sess = db_session.create_session()
-    uuid = str(uuid4())
     data = request.json
     if not data["pswd"] or not (0 < len(data["name"]) <= 30) or not data["email"]:
         return make_response("Password required", 400)
     if sess.query(User).filter(User.name == data["name"]).first():
-        return make_response("Пользователь с таким именем существует")
+        return make_response("Пользователь с таким именем существует", 400)
     if sess.query(User).filter(User.email == data["email"]).first():
-        return make_response("Пользователь с таким именем существует")
+        return make_response("Пользователь с таким именем существует", 400)
 
     data['role'] = data.get('role') if data.get('role') else 'user'
     if data['pswd'] == data['pswd_repeated']:
@@ -107,17 +106,18 @@ def register():
         data.pop('pswd')
         data.pop('pswd_repeated')
     sess.add(
-        User(uuid=uuid, **data)
+        User(**data)
     )
     sess.commit()
 
+    uid = sess.query(User).filter(User.name == data['name']).first().id
     access_token = create_jwt({
         'type': "jwt_access",
         'exp': datetime.now(timezone.utc) + access_token_life_time,
-        'sub': uuid,
+        'sub': uid,
         'role': data['role']
     })
-    refresh_token = make_session(uuid, data['role'])
+    refresh_token = make_session(uid, data['role'])
     return {'refresh_token': refresh_token, 'access_token': access_token}
 
 
@@ -134,10 +134,10 @@ def login():
         access_token = create_jwt({
             'type': "jwt_access",
             'exp': datetime.now(timezone.utc) + access_token_life_time,
-            'sub': user.uuid,
+            'sub': user.id,
             'role': user.role
         })
-        refresh_token = make_session(user.uuid, user.role)
+        refresh_token = make_session(user.id, user.role)
         return {'refresh_token': refresh_token, 'access_token': access_token}
 
 

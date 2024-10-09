@@ -10,5 +10,5 @@ class Session(SqlAlchemyBase, SerializerMixin):
     uuid = sqlalchemy.Column(sqlalchemy.String,
                            primary_key=True, nullable=False)
     user_id = sqlalchemy.Column(sqlalchemy.String,
-                                sqlalchemy.ForeignKey("users.uuid"), nullable=False)
+                                sqlalchemy.ForeignKey("users.id"), nullable=False)
     refresh_token = sqlalchemy.Column(sqlalchemy.String, nullable=False)
