@@ -22,7 +22,7 @@ python -m venv .venv
 
 Активация среды(***для Windows***)
 ```bash
-source .venv\Scripts\activate
+source .venv/Scripts/activate
 ```
 
 Активация среды(***для Linux***)
@@ -32,7 +32,7 @@ source .venv/bin/activate
 
 Установка зависимостей:
 ```bash
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 Запуск сервера
