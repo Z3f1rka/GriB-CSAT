@@ -5,6 +5,7 @@ import Login from '../pages/Login.vue'
 import Card from '../pages/Card.vue'
 import AdminMain from '../pages/AdminMain.vue'
 import CategCreate from '../pages/CategCreate.vue'
+import CreateCard from '../pages/CreateCard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +16,7 @@ const router = createRouter({
     { path: '/card', name: 'Card', component: Card },
     { path: '/admin', name: 'AdminPanel', component: AdminMain },
     { path: '/createcategory', name: 'CreateCategory', component: CategCreate },
+    { path: '/createcard', name: "CreateCard", component: CreateCard}
   ]
 })
 
