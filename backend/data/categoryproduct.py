@@ -10,7 +10,7 @@ class CategoryProduct(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'categoryproducts'
     
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False)
-    category_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("category.id"), nullable=False)
+    category_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("categories.id"), nullable=False)
     product_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("products.id"), nullable=False)
     
     category = orm.relationship('Category', back_populates='products')

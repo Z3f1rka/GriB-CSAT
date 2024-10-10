@@ -61,10 +61,10 @@ def add_category():
     if payload['role'] != "admin":
         return make_response("The requester is not admin", 403)
     if sess.query(Category).filter(Category.title == data['title']).first():
-        return make_response("This category is exists", 400)
+        return make_response("This category exists", 400)
     sess.add(Category(
         title=data['title'],
-        characteristics=';'.join(list(map(lambda x: x.lower(), data["chars"])))
+        criterions=';'.join(list(map(lambda x: x.lower(), data["chars"])))
     ))
     sess.commit()
     return make_response("OK", 200)
@@ -80,8 +80,32 @@ def delete_card(id: int):
         return make_response("The requester is not admin", 403)
     elif payload['role'] == "vendor":
         if not sess.query(Product).filter(Product.id == id).first().vendor_id == payload['sub']:
-            return make_response("The requester is not have this product", 403)
+            return make_response("The requester do not have this product", 403)
     card = sess.query(Product).filter(Product.id == id).first()
     sess.delete(card)
+    sess.commit()
+    return make_response("OK", 200)
+
+
+@crud.route("/add_card", methods=["POST"])
+def add_card():
+    sess = db_session.create_session()
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "vendor":
+        return make_response("The requester is not vendor", 403)
+    
+    vendor_id = payload['sub']
+    vendor_id = 1
+    data = request.json
+    print(data)
+    title = data['title']
+    if title == '':
+        return make_response("Title is required", 400)
+    description = data['description']
+    characteristics = data['characteristics']
+    categories = data['categories'] # []
+    sess.add(Product(vendor_id=vendor_id, title=title, description=description, characteristics=characteristics, categories=categories))
     sess.commit()
     return make_response("OK", 200)

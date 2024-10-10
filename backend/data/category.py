@@ -9,7 +9,7 @@ from sqlalchemy_serializer import SerializerMixin
 class Category(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'categories'
     
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False, primary_key=True)
     
     products = orm.relationship('CategoryProduct', back_populates='category')
