@@ -1,3 +1,5 @@
+from fileinput import filename
+
 from flask import Blueprint, jsonify, request, redirect, make_response, send_from_directory
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
@@ -37,7 +39,12 @@ def upload_images():
 
     if file:
         # Сохранение файла
-        file.save(os.path.join(DESTINATION + file.filename))
+        filename = file.filename
+        if filename in os.listdir("files/"):
+            filenames = [i for i in os.listdir("files/") if filename in i]
+            filenames.sort()
+            filename = filename + f"({filenames[-1][-2]})"
+        file.save(os.path.join(DESTINATION + filename))
         return jsonify({'message': 'File uploaded successfully', 'filename': file.filename}), 200
 
 @crud.route("/send_image/<filename>", methods=["GET"])

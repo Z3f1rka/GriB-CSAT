@@ -4,6 +4,7 @@
 from datetime import timedelta
 from flask import Flask
 from flask_cors import CORS
+import os
 
 # Blueprints
 from blueprints.auth import auth
@@ -25,5 +26,9 @@ app.register_blueprint(crud, url_prefix="/api")
 
 
 if __name__ == "__main__":
+    if not os.path.exists("files/"):
+        os.mkdir("files/")
+    if not os.path.exists("db/"):
+        os.mkdir("db/")
     db_session.global_init('db/CSAT_db.db')
     app.run(port=8080, host="127.0.0.1")
