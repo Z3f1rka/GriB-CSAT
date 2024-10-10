@@ -79,6 +79,22 @@ def add_category():
     return make_response("OK", 200)
 
 
+@crud.route("/category/delete/<int:id>", methods=["POST"])
+def delete_category(id):
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "admin":
+        return make_response("The requester is not admin", 403)
+    sess = db_session.create_session()
+    if not sess.query(Category).filter(Category.id == id).first():
+        return make_response("This category does not exist", 403)
+    cat = sess.query(Category).filter(Category.id == id).first()
+    sess.delete(cat)
+    sess.commit()
+    return make_response("OK", 200)
+
+
 @crud.route("/category/all", methods=[])
 def all():
     """{id:, title:, criterion: [{id, title}, ...]}"""
