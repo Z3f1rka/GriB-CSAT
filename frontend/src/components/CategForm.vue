@@ -47,9 +47,9 @@ function data() {
     err_title.value = "Максимальная длина - 20 символов";
   }
   if (can_log) {
-    var resp_data = auth_post("/", {
+    var resp_data = auth_post("/api/category/add", {
       title: title.value,
-      list: charList._rawValue,
+      criterions: charList._rawValue,
     });
     if (resp_data) {
       router.push("/admin");
@@ -84,7 +84,7 @@ function data() {
       </div>
       <div
         @click="add()"
-        class="col-span-1 rounded bg-secondary text-main text-center cursor-pointer p-2 px-5"
+        class="col-span-1 rounded bg-secondary text-main text-center cursor-pointer p-2"
       >
         <b> Добавить</b>
       </div>
