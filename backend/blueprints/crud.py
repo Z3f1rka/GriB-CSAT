@@ -9,6 +9,7 @@ from data.users import User
 from data.category import Category
 from data.products import Product
 from data.criterion import Criterion
+from data.categoryproduct import CategoryProduct
 
 ALLOWED_MEDIA = []
 DESTINATION = ""
@@ -74,6 +75,8 @@ def add_category():
     criterions = data['criterions']
     # criterions = [title, ...]
     for criterion in criterions:
+        if not criterion:
+            return make_response("Title is required", 400)
         sess.add(Criterion(title=criterion, category_id=cat.id))
     sess.commit()
     return make_response("OK", 200)
@@ -95,7 +98,36 @@ def delete_category(id):
     return make_response("OK", 200)
 
 
-@crud.route("/category/all", methods=[])
+@crud.route("/category/edit/<int:id>", methods=["GET", "POST"])
+def edit_category(id):
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "admin":
+        return make_response("The requester is not admin", 403)
+    sess = db_session.create_session()
+    if not sess.query(Category).filter(Category.id == id).first():
+        return make_response("This category does not exist", 403)
+    cat = sess.query(Category).filter(Category.id == id).first()
+    
+    if request.method == 'GET':
+        # {'title': , 'criterions': [{}]}
+        res = {'title': cat.title, 'criterions': []}
+        criterions = []
+        for i in cat.criterion:
+            criterions.append({'id': i.id, 'title': i.title})
+        return res
+    
+    elif request.method == 'POST':
+        data = request.json
+        cat.title = data['title']
+        # добавить, убрать критерии
+        sess.commit()
+            
+                
+
+
+@crud.route("/category/all", methods=['POST'])
 def all():
     """{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
@@ -143,6 +175,7 @@ def delete_card(id: int):
 @crud.route("/card/add", methods=["POST"])
 def add_card():
     sess = db_session.create_session()
+
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
@@ -157,7 +190,13 @@ def add_card():
     description = data['description']
     characteristics = data['characteristics']
     categories = data['categories'] # []
-    sess.add(Product(vendor_id=vendor_id, title=title, description=description, characteristics=characteristics, categories=categories))
+    sess.add(Product(vendor_id=vendor_id, title=title, description=description, characteristics=characteristics))
+    sess.commit()
+    product_id = len(sess.query(Product).all())
+    for category in categories:
+        cat = sess.query(Category).filter(Category.title == category).first()
+        category_id = cat.id
+        sess.add(CategoryProduct(product_id=product_id, category_id=category_id))
     sess.commit()
     return make_response("OK", 200)
 
