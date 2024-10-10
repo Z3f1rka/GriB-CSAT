@@ -130,14 +130,15 @@ function data() {
       categories: resList,
     };
     console.log(values);
-    var resp_data = auth_post("/api/card/add", values);
-    if (resp_data) {
+    var resp_data;
+    auth_post("/api/card/add", values).then((response) => {
+      console.log(response);
       console.log(choosedFiles._rawValue);
       for (let i = 0; i < choosedFiles._rawValue.length; i++) {
         uploadFile(choosedFiles._rawValue[i]);
       }
       router.push("/");
-    }
+    });
   }
 }
 </script>
