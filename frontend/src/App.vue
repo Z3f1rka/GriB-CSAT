@@ -1,7 +1,11 @@
-<script setup></script>
+<script setup>
+import { RouterView } from 'vue-router'
+import Header from './components/Header.vue'
+</script>
 
 <template>
   <div>
-    <h1 class="text-3xl font-bold underline">Hello world!</h1>
+    <Header></Header>
+    <router-view></router-view>
   </div>
 </template>

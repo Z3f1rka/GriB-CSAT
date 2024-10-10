@@ -15,9 +15,10 @@ from data import db_session
 
 
 app = Flask(__name__)
-access_token_life_time = timedelta(hours=1)
+access_token_life_time = timedelta(seconds=10)
 refresh_token_life_time = timedelta(days=30)
 CORS(app)
+
 app.register_blueprint(auth, url_prefix="/api/auth")
 app.register_blueprint(card, url_prefix="/api")
 app.register_blueprint(crud, url_prefix="/api")
