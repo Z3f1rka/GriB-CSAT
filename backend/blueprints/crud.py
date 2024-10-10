@@ -85,7 +85,7 @@ def add_category():
     return make_response("OK", 200)
 
 
-@crud.route("/category/delete/<int:id>", methods=["POST"])
+@crud.route("/category/delete/<int:id>", methods=["DELETE"])
 def delete_category(id):
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -108,10 +108,10 @@ def edit_category(id):
         return make_response("Unathorized", 401)
     if payload['role'] != "admin":
         return make_response("The requester is not admin", 403)
-    sess = db_session.create_session()
     if not sess.query(Category).filter(Category.id == id).first():
         return make_response("This category does not exist", 403)
     cat = sess.query(Category).filter(Category.id == id).first()
+    all_criterions = cat.criterion
 
     if request.method == 'GET':
         # {'title': , 'criterions': [{}]}
@@ -124,7 +124,23 @@ def edit_category(id):
     elif request.method == 'POST':
         data = request.json
         cat.title = data['title']
-        # добавить, убрать критерии
+        criterions = data['criterions'] # [{'id': , 'title':}]
+        for criterion in criterions:
+            crit_id = criterion['id']
+            crit_title = criterion['title']
+            if not sess.query(Criterion).filter(Criterion.id == crit_id).first(): # если новый
+                sess.add(Criterion(title=crit_title, category_id=cat.id))
+            else:
+                to_change = sess.query(Criterion).filter(Criterion.id == crit_id).first() # если поменяли
+                to_change.title = crit_title
+        sess.commit()
+
+    elif request.method == 'PUT':
+        criterions = data['criterions']
+        for crit in all_criterions:
+            criterions_id = [i['id'] for i in criterions]
+            if not crit.id in criterions_id:
+                sess.delete(crit)
         sess.commit()
 
 
@@ -342,4 +358,3 @@ def update(id: int):
         rating.criterion = i['criterion']
         sess.commit()
     return make_response("OK", 200)
-

@@ -97,7 +97,7 @@ def register():
     if sess.query(User).filter(User.name == data["name"]).first():
         return make_response("Пользователь с таким именем существует", 400)
     if sess.query(User).filter(User.email == data["email"]).first():
-        return make_response("Пользователь с таким именем существует", 400)
+        return make_response("Пользователь с такой почтой существует", 400)
 
     data['role'] = data.get('role') if data.get('role') else 'user'
     if data['pswd'] == data['pswd_repeated']:

@@ -10,7 +10,7 @@ class Category(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'categories'
     
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
-    title = sqlalchemy.Column(sqlalchemy.String, nullable=False, primary_key=True)
+    title = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
     
     products = orm.relationship('CategoryProduct', back_populates='category', cascade='all, delete')
     criterion = orm.relationship('Criterion', back_populates='category', cascade='all, delete')
