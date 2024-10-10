@@ -15,4 +15,4 @@ class Rating(SqlAlchemyBase, SerializerMixin):
     criterion_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("criterions.id"), nullable=False)
     
     feedback = orm.relationship('Feedback', back_populates='ratings')
-    criterion = orm.relationship('Criterion')
+    criterion = orm.relationship('Criterion', back_populates='ratings')

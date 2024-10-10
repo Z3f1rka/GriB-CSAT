@@ -9,7 +9,7 @@ from sqlalchemy_serializer import SerializerMixin
 class Criterion(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'criterions'
     
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     category_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("categories.id"), nullable=False)
     
