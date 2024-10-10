@@ -101,7 +101,7 @@ def delete_category(id):
     return make_response("OK", 200)
 
 
-@crud.route("/category/edit/<int:id>", methods=["GET", "POST"])
+@crud.route("/category/edit/<int:id>", methods=["GET", "PUT"])
 def edit_category(id):
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -123,7 +123,7 @@ def edit_category(id):
             criterions.append({'id': i.id, 'title': i.title})
         return res
 
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         data = request.json
         cat.title = data['title']
         criterions = data['criterions'] # [{'id': , 'title':}]
@@ -136,8 +136,6 @@ def edit_category(id):
                 to_change = sess.query(Criterion).filter(Criterion.id == crit_id).first() # если поменяли
                 to_change.title = crit_title
         sess.commit()
-        
-    elif request.method == 'PUT':
         criterions = data['criterions']
         for crit in all_criterions:
             criterions_id = [i['id'] for i in criterions]
@@ -253,7 +251,7 @@ def delete(id: int):
     payload = get_jwt_payload(request.headers.get("authorization"))
     allowed_role = "superuser"
     if type(payload) != type(dict()):
-        return make_response("Unathorized", 401)
+        return make_response("Unauthorized", 401)
     if payload['role'] != allowed_role:
         return make_response(f"The requester is not {allowed_role}", 403)
     user = sess.query(User).filter(User.id == id).first()
@@ -276,9 +274,9 @@ def update(id: int):
     data = request.json
     user = sess.query(User).filter(User.id == id).first()
     if type(payload) != type(dict()):
-        return make_response("Unathorized", 401)
+        return make_response("Unauthorized", 401)
     if not user.id == payload['sub']:
-        return make_response("Users doesnt match", 403)
+        return make_response("User does not match", 403)
 
     if "email" in data.keys():
         if sess.query(User).filter(User.email == data["email"]).first():
@@ -329,12 +327,12 @@ def add():
                         feedback_id=feedback_id,
                         criterion_id=i["criterion"])
         sess.add(rating)
-        sess.commit()
+    sess.commit()
     return make_response("OK", 200)
 
 
-@crud.route("/feedback/update/<int:id>", methods=["POST"])
-def update(id: int):
+@crud.route("/feedback/update/<int:id>", methods=["PUT"])
+def update(id):
     """
         {feedback: {
             text:,
@@ -348,7 +346,7 @@ def update(id: int):
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     if payload['id'] != id:
-        return make_response(f"User does not owner", 403)
+        return make_response(f"User is not owner", 403)
 
     feedback = sess.query(Feedback).filter(Feedback.id == id).first()
     feedback.text = data['feedback']['text']
