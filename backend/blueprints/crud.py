@@ -84,7 +84,6 @@ def add_category():
     sess.commit()
     return make_response("OK", 200)
 
-@crud.route("/category/all", methods=["GET"])
 
 @crud.route("/category/delete/<int:id>", methods=["POST"])
 def delete_category(id):
@@ -129,9 +128,7 @@ def edit_category(id):
         sess.commit()
 
 
-
-
-@crud.route("/category/all", methods=['POST'])
+@crud.route("/category/all", methods=['GET'])
 def all():
     """{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()

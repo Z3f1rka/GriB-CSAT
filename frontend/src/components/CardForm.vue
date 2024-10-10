@@ -24,7 +24,7 @@ var choosedFiles = ref([]);
 
 auth_get("/api/category/all").then((data) => {
   categList.value = data;
-})
+});
 
 function onFileChange(event) {
   selectedFile = event.target.files[0];
@@ -111,20 +111,26 @@ function data() {
   } else {
     err_char.value = "";
   }
-  if (chategList._rawValue.length == 0) {
+  if (chooseCateg._rawValue.length == 0) {
     can_reg = false;
     err_categ.value = "Обязательное поле";
   }
+  console.log(can_reg);
   if (can_reg) {
+    var resList = [];
+    for (let i = 0; i < chooseCateg.value.length; i++) {
+      resList.push(chooseCateg._rawValue[i].title);
+    }
     const values = {
       title: title.value,
       description: description.value,
       characteristics: characteristics.value,
-      categories: categList._rawValue,
+      categories: resList,
     };
     console.log(values);
     var resp_data = auth_post("/api/card/add", values);
     if (resp_data) {
+      
       router.push("/");
     }
   }
