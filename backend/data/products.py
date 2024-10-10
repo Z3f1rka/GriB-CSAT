@@ -11,17 +11,14 @@ from sqlalchemy_serializer import SerializerMixin
 class Product(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'products'
 
-    uuid = sqlalchemy.Column(sqlalchemy.String, primary_key=True, nullable=False)
-    vendor_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.uuid"), nullable=False)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
+    vendor_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.id"), nullable=False)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    description = sqlalchemy.Column(sqlalchemy.Text, default=None)
-    characteristics = sqlalchemy.Column(sqlalchemy.String, default=None)
-    feedback = sqlalchemy.Column(sqlalchemy.String, default=None)
-    photos = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    statistics = sqlalchemy.Column(sqlalchemy.String, default=None) # path to file
-    isaccepted = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
+    description = sqlalchemy.Column(sqlalchemy.Text, default='Описание отсутсвует')
+    characteristics = sqlalchemy.Column(sqlalchemy.String, default=None) #'id1;id2;id3'
+    accepted = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     public_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
-    category = sqlalchemy.Column(sqlalchemy.String, default=None)
-    rating = sqlalchemy.Column(sqlalchemy.Float, default=0)
-    number_of_feedbacks = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+
     vendor = orm.relationship('User')
+    categories = orm.relationship('CategoryProduct', back_populates='product')
+    feedbacks = orm.relationship('Feedback')
