@@ -22,6 +22,10 @@ var chooseCateg = ref([]);
 var selectedFile;
 var choosedFiles = ref([]);
 
+var categdata = auth_get('/api/category/all')
+console.log(categdata)
+
+
 function onFileChange(event) {
   selectedFile = event.target.files[0];
 }
@@ -208,16 +212,16 @@ function data() {
     </div>
     <div class="grid grid-cols-8 pb-5">
       <div class="col-span-2"></div>
-      <div class="col-start-3 col-span-6 h-40 text-white">
-        <div>
-          <input type="file" @change="onFileChange" />
-          <button @click="addFile">Добавить</button>
+      <div class="col-start-2 col-span-6 h-40 text-white">
+        <div class="grid grid-rows-1 grid-cols-3">
+          <input type="file" @change="onFileChange" class="col-span-2 mt-3"/>
+          <button @click="addFile" class="rounded col-start-3 bg-secondary m-2 p-2 text-white">Добавить</button>
         </div>
         <div>
           <div
             v-for="file in choosedFiles"
             :key="file"
-            class="cursor-pointer"
+            class="cursor-pointer bg-tgray m-2 px-3 rounded hover:bg-main"
             @click="removeFile(file.id)"
           >
             <p>{{ file.file.name }}</p>

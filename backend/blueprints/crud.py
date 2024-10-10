@@ -1,6 +1,3 @@
-from crypt import methods
-from unicodedata import category
-
 from flask import Blueprint, jsonify, request, redirect, make_response
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
@@ -74,7 +71,7 @@ def add_category():
     sess.commit()
     return make_response("OK", 200)
 
-@crud.route("/category/all", methods=[])
+@crud.route("/category/all", methods=["GET"])
 def all():
     """{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
