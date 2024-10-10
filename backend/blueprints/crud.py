@@ -362,7 +362,7 @@ def add():
 
 
 @crud.route("/feedback/update/<int:id>", methods=["PUT"])
-def update(id):
+def update1(id):
     """
         {feedback: {
             text:,

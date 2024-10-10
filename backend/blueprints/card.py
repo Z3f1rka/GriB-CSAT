@@ -18,6 +18,7 @@ card = Blueprint("cards", "card")
 
 @card.route("/products", methods=['GET'])
 def products():
+    """[{id:, title:, img}]"""
     sess = db_session.create_session()
     data = request.headers.get("authorization")
     payload = get_jwt_payload(data)
@@ -27,7 +28,8 @@ def products():
     res = []
     for product in products:
         el = {"id": product.id,
-              "title": product.title}
+              "title": product.title,
+              "img": product.photos[0]}
         res.append(el)
     return res
 
