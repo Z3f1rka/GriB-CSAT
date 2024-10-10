@@ -1,5 +1,3 @@
-from fileinput import filename
-
 from flask import Blueprint, jsonify, request, redirect, make_response, send_from_directory
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
@@ -102,7 +100,7 @@ def delete_category(id):
     return make_response("OK", 200)
 
 
-@crud.route("/category/edit/<int:id>", methods=["GET", "POST"])
+@crud.route("/category/edit/<int:id>", methods=["GET", "PUT"])
 def edit_category(id):
     data = request.json
     payload = get_jwt_payload(request.headers.get("authorization"))
@@ -110,11 +108,14 @@ def edit_category(id):
         return make_response("Unathorized", 401)
     if payload['role'] != "admin":
         return make_response("The requester is not admin", 403)
-    sess = db_session.create_session()
     if not sess.query(Category).filter(Category.id == id).first():
         return make_response("This category does not exist", 403)
 
+
+    sess = db_session.create_session()
     cat = sess.query(Category).filter(Category.id == id).first()
+    all_criterions = cat.criterion
+
     all_criterions = cat.criterion
 
     if request.method == 'GET':
@@ -125,7 +126,7 @@ def edit_category(id):
             criterions.append({'id': i.id, 'title': i.title})
         return res
 
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         data = request.json
         cat.title = data['title']
         criterions = data['criterions'] # [{'id': , 'title':}]
@@ -140,6 +141,21 @@ def edit_category(id):
         sess.commit()
 
     elif request.method == 'PUT':
+        criterions = data['criterions']
+        for crit in all_criterions:
+            criterions_id = [i['id'] for i in criterions]
+            if not crit.id in criterions_id:
+                sess.delete(crit)
+        criterions = data['criterions'] # [{'id': , 'title':}]
+        for criterion in criterions:
+            crit_id = criterion['id']
+            crit_title = criterion['title']
+            if not sess.query(Criterion).filter(Criterion.id == crit_id).first(): # если новый
+                sess.add(Criterion(title=crit_title, category_id=cat.id))
+            else:
+                to_change = sess.query(Criterion).filter(Criterion.id == crit_id).first() # если поменяли
+                to_change.title = crit_title
+        sess.commit()
         criterions = data['criterions']
         for crit in all_criterions:
             criterions_id = [i['id'] for i in criterions]
@@ -255,7 +271,7 @@ def delete(id: int):
     payload = get_jwt_payload(request.headers.get("authorization"))
     allowed_role = "superuser"
     if type(payload) != type(dict()):
-        return make_response("Unathorized", 401)
+        return make_response("Unauthorized", 401)
     if payload['role'] != allowed_role:
         return make_response(f"The requester is not {allowed_role}", 403)
     user = sess.query(User).filter(User.id == id).first()
@@ -278,9 +294,9 @@ def update(id: int):
     data = request.json
     user = sess.query(User).filter(User.id == id).first()
     if type(payload) != type(dict()):
-        return make_response("Unathorized", 401)
+        return make_response("Unauthorized", 401)
     if not user.id == payload['sub']:
-        return make_response("Users doesnt match", 403)
+        return make_response("User does not match", 403)
 
     if "email" in data.keys():
         if sess.query(User).filter(User.email == data["email"]).first():
@@ -331,12 +347,12 @@ def add():
                         feedback_id=feedback_id,
                         criterion_id=i["criterion"])
         sess.add(rating)
-        sess.commit()
+    sess.commit()
     return make_response("OK", 200)
 
 
-@crud.route("/feedback/update/<int:id>", methods=["POST"])
-def update1(id: int):
+@crud.route("/feedback/update/<int:id>", methods=["PUT"])
+def update(id):
     """
         {feedback: {
             text:,
@@ -350,7 +366,7 @@ def update1(id: int):
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     if payload['id'] != id:
-        return make_response(f"User does not owner", 403)
+        return make_response(f"User is not owner", 403)
 
     feedback = sess.query(Feedback).filter(Feedback.id == id).first()
     feedback.text = data['feedback']['text']
@@ -362,3 +378,4 @@ def update1(id: int):
         rating.criterion = i['criterion']
         sess.commit()
     return make_response("OK", 200)
+
