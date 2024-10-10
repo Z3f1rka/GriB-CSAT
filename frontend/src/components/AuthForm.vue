@@ -79,6 +79,8 @@ function data() {
           localStorage.setItem("refresh_token", response.data.refresh_token);
           router.push("/");
         }
+      }).catch((err) => {
+        alert(err.response.data)
       });
   }
 }

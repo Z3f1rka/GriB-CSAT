@@ -49,6 +49,10 @@ function data() {
           localStorage.setItem("refresh_token", response.data.refresh_token);
           router.push({ path:'/', replace: true })
         }
+      }).catch((err) => {
+        if (err.status == 400 || err.status == 404){
+          alert('Неправильный логин или пароль')
+        }
       });
   }
 }

@@ -116,7 +116,7 @@ const fb = ref(false)
                             {{ item.text }}
                         </p>
                     </div>
-                    <div @click="modal1 = true" v-if="len > 8" class="text-xl mt-2 border-2 py-2 px-3 cursor-pointer border-zinc-500 bg-secondary text-main rounded-lg select-none" style="width: 300px;">
+                    <div @click="modal1 = true" v-if="len > 8" class="text-xl mt-2 border-2 py-2 px-3 cursor-pointer border-zinc-500 bg-secondary text-main rounded-lg select-none" style="width: 320px;">
                         Показать все характеристики
                     </div>
                     <Teleport v-if="modal1 == true" to="#teleport-target">
