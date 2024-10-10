@@ -50,6 +50,7 @@ def upload_images():
   </body>
 </html>"""
 
+# category crud
 
 @crud.route("/add_category", methods=["POST"])
 def add_category():
@@ -69,8 +70,11 @@ def add_category():
     sess.commit()
     return make_response("OK", 200)
 
+# TODO: дописать удаление, изменение
 
-@crud.route("/delete_card/<int:id>", methods=["DELETE"])
+# CRUD card
+
+@crud.route("/card/delete/<int:id>", methods=["DELETE"])
 def delete_card(id: int):
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
@@ -87,7 +91,7 @@ def delete_card(id: int):
     return make_response("OK", 200)
 
 
-@crud.route("/add_card", methods=["POST"])
+@crud.route("/card/add", methods=["POST"])
 def add_card():
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
@@ -108,6 +112,7 @@ def add_card():
     sess.commit()
     return make_response("OK", 200)
 
+<<<<<<< HEAD
 
 @crud.route('/edit_card/<int:id>', methods=['GET', 'POST'])
 def edit_card(id):
@@ -135,3 +140,9 @@ def edit_card(id):
         product.characteristics = data['characteristics']
         product.categories = data['categories'] # []
         
+=======
+# TODO: дописать изменение карт
+
+# user crud
+# TODO: дописать изменение и удаление
+>>>>>>> 605077e1d6d7ef1a9acd02bb6d888ee4892cc131

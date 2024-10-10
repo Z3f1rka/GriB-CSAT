@@ -156,3 +156,15 @@ def refresh():
         'role': payload['role']
     })
     return {'refresh_token': data, 'access_token': access_token}
+
+
+@auth.route("/get_user", methods=["GET"])
+def get_user():
+    sess = db_session.create_session()
+    data = request.headers.get("authorization")
+    payload = get_jwt_payload(data)
+    if type(payload) != type(dict()):
+        return make_response(payload, 401)
+    user = sess.query(User).filter(User.id == payload['sub']).first().to_dict()
+    user.pop("hashed_password")
+    return jsonify(user)
