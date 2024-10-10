@@ -14,4 +14,4 @@ class Criterion(SqlAlchemyBase, SerializerMixin):
     category_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("categories.id"), nullable=False)
     
     category = orm.relationship('Category', back_populates='criterion')
-    ratings = orm.relationship('Rating')
+    ratings = orm.relationship('Rating', cascade='all, delete')
