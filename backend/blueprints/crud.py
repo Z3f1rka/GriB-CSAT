@@ -13,6 +13,7 @@ from data.products import Product
 from data.sessions import Session
 from data.criterion import Criterion
 from data.categoryproduct import CategoryProduct
+from data.photos import Photo
 
 ALLOWED_MEDIA = []
 DESTINATION = "files/"
@@ -22,7 +23,9 @@ crud = Blueprint("CRUD", "crud")
 
 @crud.route("/upload_images", methods=["POST"])
 def upload_images():
+    sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
+    data = request.json
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     if payload["role"] != 'vendor':
@@ -43,6 +46,10 @@ def upload_images():
             filenames.sort()
             filename = filename + f"({filenames[-1][-2]})"
         file.save(os.path.join(DESTINATION + filename))
+        file = Photo(path=filename,
+                     product_id=data["product_id"])
+        sess.add(file)
+        sess.commit()
         return jsonify({'message': 'File uploaded successfully', 'filename': file.filename}), 200
 
 @crud.route("/send_image/<filename>", methods=["GET"])
@@ -51,7 +58,7 @@ def send_image(filename):
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     try:
-        return send_from_directory(DESTINATION, filename)
+        return send_from_directory(DESTINATION, filename) # TODO: посмотреть надо ли делать слеш
     except FileNotFoundError:
         return make_response("File not found", 400)
 
@@ -102,6 +109,7 @@ def delete_category(id):
 
 @crud.route("/category/edit/<int:id>", methods=["GET", "PUT"])
 def edit_category(id):
+    sess = db_session.create_session()
     data = request.json
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -234,7 +242,7 @@ def add_card():
         category_id = cat.id
         sess.add(CategoryProduct(product_id=product_id, category_id=category_id))
     sess.commit()
-    return make_response("OK", 200)
+    return jsonify({"product_id": product_id}), 200
 
 
 @crud.route('/card/edit/<int:id>', methods=['GET', 'POST'])
@@ -262,6 +270,8 @@ def edit_card(id):
         product.description = data['description']
         product.characteristics = data['characteristics']
         product.categories = data['categories'] # []
+        sess.commit()
+        return jsonify({"product_id": product.id}), 200
 
 
 # user crud
