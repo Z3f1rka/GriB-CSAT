@@ -97,13 +97,15 @@ def register():
     if sess.query(User).filter(User.name == data["name"]).first():
         return make_response("Пользователь с таким именем существует", 400)
     if sess.query(User).filter(User.email == data["email"]).first():
-        return make_response("Пользователь с таким именем существует", 400)
+        return make_response("Пользователь с такой почтой существует", 400)
 
     data['role'] = data.get('role') if data.get('role') else 'user'
     if data['pswd'] == data['pswd_repeated']:
         data['hashed_password'] = generate_password_hash(data['pswd'])
         data.pop('pswd')
         data.pop('pswd_repeated')
+    else:
+        return make_response("Passwords not match", 400)
     sess.add(
         User(**data)
     )
@@ -126,7 +128,7 @@ def login():
     data = request.json
     user = sess.query(User).filter(User.name == data['name']).first()
     if not user:
-        return make_response("User not found", 404)
+        return make_response("User not found", 400)
     elif not check_password_hash(user.hashed_password, data['pswd']):
         return make_response("Wrong password", 400)
     elif user.role == "deleted":

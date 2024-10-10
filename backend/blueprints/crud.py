@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, redirect, make_response
+from flask import Blueprint, jsonify, request, redirect, make_response, send_from_directory
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
 import os
@@ -15,46 +15,36 @@ from data.criterion import Criterion
 from data.categoryproduct import CategoryProduct
 
 ALLOWED_MEDIA = []
-DESTINATION = ""
+DESTINATION = "files/"
 
 
 crud = Blueprint("CRUD", "crud")
 
 @crud.route("/upload_images", methods=["POST", "GET"])
 def upload_images():
+    if 'file' not in request.files:
+        return make_response("No file in request", 400)
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return make_response("No selected file", 400)
+
+    if file:
+        # Сохранение файла
+        file.save(os.path.join(DESTINATION + file.filename))
+        return jsonify({'message': 'File uploaded successfully', 'filename': file.filename}), 200
+
+@crud.route("/send_image/<filename>", methods=["GET"])
+def send_image(filename):
     sess = db_session.create_session()
-    data = request.headers.get("authorization")
-    payload = get_jwt_payload(data)
+    payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
-        return make_response(payload, 401)
-    if payload["role"] != "vendor":
-        return make_response("The requester is not vendor", 403)
-    if request.method == "POST":
-        if request.files:
-            for i, file in enumerate(request.files):
-                try:
-                    image = request.files[f"images[{i}]"]
-                    if image.content_type not in ALLOWED_MEDIA:
-                        return make_response("Unsupported Media Type", 415)
-                    image.save(os.path.join(DESTINATION), secure_filename(image.filename))
-                except (KeyError, FileNotFoundError):
-                    return jsonify("An error occurred while processing the file."), 500
-            return "saved"
-        return make_response("No files", 400)
-    if request.method == "GET":
-        return """<!doctype html>
-<html>
-  <head>
-    <title>File Upload</title>
-  </head>
-  <body>
-    <h1>File Upload</h1>
-    <form method="POST" action="" enctype="multipart/form-data">
-      <p><input type="file" name="file"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-  </body>
-</html>"""
+        return make_response("Unathorized", 401)
+    try:
+        return send_from_directory(DESTINATION, filename)
+    except FileNotFoundError:
+        return make_response("File not found", 400)
 
 # category crud
 
@@ -85,7 +75,7 @@ def add_category():
     return make_response("OK", 200)
 
 
-@crud.route("/category/delete/<int:id>", methods=["POST"])
+@crud.route("/category/delete/<int:id>", methods=["DELETE"])
 def delete_category(id):
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -103,6 +93,7 @@ def delete_category(id):
 
 @crud.route("/category/edit/<int:id>", methods=["GET", "POST"])
 def edit_category(id):
+    data = request.json
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
@@ -111,7 +102,9 @@ def edit_category(id):
     sess = db_session.create_session()
     if not sess.query(Category).filter(Category.id == id).first():
         return make_response("This category does not exist", 403)
+
     cat = sess.query(Category).filter(Category.id == id).first()
+    all_criterions = cat.criterion
 
     if request.method == 'GET':
         # {'title': , 'criterions': [{}]}
@@ -124,13 +117,29 @@ def edit_category(id):
     elif request.method == 'POST':
         data = request.json
         cat.title = data['title']
-        # добавить, убрать критерии
+        criterions = data['criterions'] # [{'id': , 'title':}]
+        for criterion in criterions:
+            crit_id = criterion['id']
+            crit_title = criterion['title']
+            if not sess.query(Criterion).filter(Criterion.id == crit_id).first(): # если новый
+                sess.add(Criterion(title=crit_title, category_id=cat.id))
+            else:
+                to_change = sess.query(Criterion).filter(Criterion.id == crit_id).first() # если поменяли
+                to_change.title = crit_title
+        sess.commit()
+
+    elif request.method == 'PUT':
+        criterions = data['criterions']
+        for crit in all_criterions:
+            criterions_id = [i['id'] for i in criterions]
+            if not crit.id in criterions_id:
+                sess.delete(crit)
         sess.commit()
 
 
 @crud.route("/category/all", methods=['GET'])
 def all():
-    """{id:, title:, criterion: [{id, title}, ...]}"""
+    """:return:{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -311,5 +320,34 @@ def add():
                         feedback_id=feedback_id,
                         criterion_id=i["criterion"])
         sess.add(rating)
+        sess.commit()
+    return make_response("OK", 200)
+
+
+@crud.route("/feedback/update/<int:id>", methods=["POST"])
+def update(id: int):
+    """
+        {feedback: {
+            text:,
+            feedback_id
+        },
+        ratings: [{rating: , criterion:, rating_id:]}
+        """
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['id'] != id:
+        return make_response(f"User does not owner", 403)
+
+    feedback = sess.query(Feedback).filter(Feedback.id == id).first()
+    feedback.text = data['feedback']['text']
+    sess.commit()
+
+    for i in data['ratings']:
+        rating = sess.query(Rating).filter(Rating.id == i['rating_id']).first()
+        rating.rating = i['rating']
+        rating.criterion = i['criterion']
         sess.commit()
     return make_response("OK", 200)
