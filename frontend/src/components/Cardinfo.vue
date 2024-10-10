@@ -88,12 +88,14 @@ const fb = ref(false)
             <div class="flex mt-2">
                 <div 
                     @click="show = false"
+                    tabindex="1"
                     class="cursor-pointer des-button border-b mb-5 px-2 text-xl"
                 >  
                         Описание    
                 </div>
                 <div 
                     @click="show = true"
+                    tabindex="1"
                     class="cursor-pointer des-button border-b mb-5 px-2 w-full text-xl"
                 >
                         Характеристика

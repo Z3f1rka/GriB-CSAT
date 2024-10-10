@@ -2,20 +2,31 @@
 import { computed, onMounted, ref } from 'vue';
 import Card from '../components/Card.vue';
 
-const SearchResult = ref('x')
 let ListCards = ref([{'title':'ttt', 'id':1, 'img':'/gendalf.jpg'}, {'title':'aaa', 'id':2, 'img':'/gendalf.jpg'}, {'title':'ttt', 'id':3, 'img':'/gendalf.jpg'}, {'title':'aaa', 'id':4, 'img':'/gendalf.jpg'}, {'title':'ttt', 'id':5, 'img':'/gendalf.jpg'}, {'title':'aaa', 'id':2, 'img':'/gendalf.jpg'}])
 const FilteredCards = ref([])
+const SearchResult = ref('')
 const input = defineModel()
 
 function search(n){
     FilteredCards.value = []
-    var text = String(n)
-    console.log(ListCards.value)
+    var text = String(n).toLowerCase()
     for (let el of ListCards.value) {
-        if (el.title.includes(text)){
+        if (el.title.toLowerCase().includes(text)){
             FilteredCards.value.push(el)
         }
     }    
+    if (text) {
+        SearchResult.value = FilteredCards.value.length
+    }
+    else {
+        SearchResult.value = ''
+    }
+    if (!FilteredCards.value.length && !SearchResult) {
+        FilteredCards.value = ListCards.value
+    }
+    if (!FilteredCards.value.length && SearchResult) {
+        SearchResult.value = '0'
+    }
 }
 onMounted(() => {
     search('');
@@ -33,16 +44,16 @@ onMounted(() => {
                             v-model="input" 
                         />
                 </div>
-                <div @click="search(input)" class="grid text-right">
+                <div @click="search(input)" class="grid text-right cursor-pointer">
                     <img 
                         src="/search.png" 
-                        class="icon text-align-right self-center noselect"
+                        class="icon text-align-right self-center select-none"
                     />
                 </div>
             </div>
         </span>
         <div class="line">
-            <h1 class="mt-9 mb-1 text-3xl">
+            <h1 class="mt-9 mb-1 text-3xl" v-if="SearchResult">
                 По вашему запросу найдено {{ SearchResult }} результатов:
             </h1>
         </div>
