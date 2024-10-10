@@ -20,8 +20,13 @@ DESTINATION = "files/"
 
 crud = Blueprint("CRUD", "crud")
 
-@crud.route("/upload_images", methods=["POST", "GET"])
+@crud.route("/upload_images", methods=["POST"])
 def upload_images():
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload["role"] != 'vendor':
+        return make_response("Sender is not vendor", 400)
     if 'file' not in request.files:
         return make_response("No file in request", 400)
 
@@ -37,7 +42,6 @@ def upload_images():
 
 @crud.route("/send_image/<filename>", methods=["GET"])
 def send_image(filename):
-    sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
@@ -137,7 +141,7 @@ def edit_category(id):
         sess.commit()
 
 
-@crud.route("/category/all", methods=['POST'])
+@crud.route("/category/all", methods=['GET'])
 def all():
     """:return:{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
@@ -325,7 +329,7 @@ def add():
 
 
 @crud.route("/feedback/update/<int:id>", methods=["POST"])
-def update(id: int):
+def update1(id: int):
     """
         {feedback: {
             text:,
