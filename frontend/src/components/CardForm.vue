@@ -22,9 +22,9 @@ var chooseCateg = ref([]);
 var selectedFile;
 var choosedFiles = ref([]);
 
-var categdata = auth_get('/api/category/all')
-console.log(categdata)
-
+auth_get("/api/category/all").then((data) => {
+  categList.value = data;
+})
 
 function onFileChange(event) {
   selectedFile = event.target.files[0];
@@ -120,10 +120,10 @@ function data() {
       title: title.value,
       description: description.value,
       characteristics: characteristics.value,
-      categList: categList._rawValue,
+      categories: categList._rawValue,
     };
     console.log(values);
-    var resp_data = auth_post("/api/", values);
+    var resp_data = auth_post("/api/card/add", values);
     if (resp_data) {
       router.push("/");
     }
@@ -214,8 +214,13 @@ function data() {
       <div class="col-span-2"></div>
       <div class="col-start-2 col-span-6 h-40 text-white">
         <div class="grid grid-rows-1 grid-cols-3">
-          <input type="file" @change="onFileChange" class="col-span-2 mt-3"/>
-          <button @click="addFile" class="rounded col-start-3 bg-secondary m-2 p-2 text-white">Добавить</button>
+          <input type="file" @change="onFileChange" class="col-span-2 mt-3" />
+          <button
+            @click="addFile"
+            class="rounded col-start-3 bg-secondary m-2 p-2 text-white"
+          >
+            Добавить
+          </button>
         </div>
         <div>
           <div
