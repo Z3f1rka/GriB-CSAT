@@ -32,6 +32,26 @@ def products():
     return res
 
 
+@card.route("/products/vendor/<int:id>", methods=['GET'])
+def vendor_products(id):
+    sess = db_session.create_session()
+    data = request.headers.get("authorization")
+    payload = get_jwt_payload(data)
+    if type(payload) != type(dict()):
+        return make_response(payload, 401)
+    if payload['role'] != "vendor":
+        return make_response("User is not vendor", 403)
+    if not sess.query(Product).filter(Product.vendor_id == id).all():
+        return make_response("This vendor does not exist", 403)
+    products = sess.query(Product).filter(Product.vendor_id == id).all()
+    res = []
+    for product in products:
+        el = {"id": product.id,
+              "title": product.title}
+        res.append(el)
+    return res
+
+
 @card.route("/product/<int:id>", methods=["GET"])
 def product(id):
     data = request.headers.get("bearer")
