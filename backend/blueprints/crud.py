@@ -1,8 +1,5 @@
-from crypt import methods
-from unicodedata import category
-
-from flask import Blueprint, jsonify, request, redirect, make_response
-from blueprints.auth import get_jwt_payload, make_session
+from flask import Blueprint, jsonify, request, make_response
+from blueprints.auth import get_jwt_payload
 from werkzeug.utils import secure_filename
 import os
 

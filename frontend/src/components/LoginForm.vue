@@ -47,7 +47,7 @@ function data() {
         } else {
           localStorage.setItem("access_token", response.data.access_token);
           localStorage.setItem("refresh_token", response.data.refresh_token);
-          router.push("/");
+          router.push({ path:'/', replace: true })
         }
       });
   }
@@ -55,11 +55,12 @@ function data() {
 </script>
 
 <template>
-  <div class="bg-zinc-900 h-2/3 w-full rounded">
+  <div class="bg-zinc-900 rounded py-12">
     <div
-      class="grid grid-cols-8 grid-rows-5 items-center h-full w-full gap-10 py-10"
+      class="grid grid-cols-8 grid-rows-5 items-center h-full w-full gap-2 py-5"
     >
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
+        <p class="text-zinc-300 mb-2">Логин</p>
         <input
           type="text"
           class="w-full h-full px-5 rounded"
@@ -67,10 +68,11 @@ function data() {
           v-model="name"
         />
       </div>
-      <div class="h-10 col-span-6 col-start-2">
+      <div class="mt-3 col-span-6 col-start-2">
         <h1 class="text-main">{{ err_name }}</h1>
       </div>
-      <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
+      <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full mb-3">
+        <p class="text-zinc-300 mb-2">Пароль</p>
         <input
           type="password"
           class="w-full h-full px-5 rounded"
@@ -78,18 +80,18 @@ function data() {
           v-model="password"
         />
       </div>
-      <div class="h-10 col-span-6 col-start-2">
+      <div class="h-10 col-span-6 col-start-2 mt-3">
         <h1 class="text-main">{{ err_pass }}</h1>
       </div>
       <div
-        class="rounded row-span-1 col-span-4 col-start-3 h-10 w-full bg-main"
+        class="rounded row-span-1 col-span-4 col-start-3 w-full bg-main"
       >
-        <button
-          class="w-full h-full px-5 rounded text-white text-center"
+        <div
+          class="py-3 px-5 rounded text-white text-center select-none cursor-pointer"
           @click="data"
         >
           Подтвердить
-        </button>
+    </div>
       </div>
     </div>
   </div>

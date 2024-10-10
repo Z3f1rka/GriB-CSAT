@@ -1,14 +1,23 @@
 <script setup>
 
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
-const isAuth = ref(false)
-if (localStorage.getItem('refresh_token')){
-  isAuth.value = true
-}
-function logout(){
+let isAuth = ref(false)
+function logout(){  
   localStorage.removeItem('refresh_token');
+  isAuth.value = false
 }
+function Auth(){
+  if (localStorage.getItem('refresh_token')){
+    isAuth.value = true
+  }
+  else {
+    isAuth.value = false
+  }
+}
+onMounted(() => {
+  Auth()
+})
 </script>
 
 <template>

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import Card from '../components/Card.vue';
+import Header from '../components/Header.vue';
 
 let ListCards = ref([{'title':'ttt', 'id':1, 'img':'/gendalf.jpg'}, {'title':'aaa', 'id':2, 'img':'/gendalf.jpg'}, {'title':'ttt', 'id':3, 'img':'/gendalf.jpg'}, {'title':'aaa', 'id':4, 'img':'/gendalf.jpg'}, {'title':'ttt', 'id':5, 'img':'/gendalf.jpg'}, {'title':'aaa', 'id':2, 'img':'/gendalf.jpg'}])
 const FilteredCards = ref([])
@@ -29,10 +30,12 @@ function search(n){
     }
 }
 onMounted(() => {
+    console.log(1)
     search('');
 })
 </script>
 <template>
+    <div><Header></Header>
     <div class="text-center">
         <span class="input text-center my-10 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 w-full rounded sm:text-sm focus:ring-1 relative">
             <div class="grid grid-rows-1 grid-cols-12">
@@ -68,7 +71,7 @@ onMounted(() => {
                 />
             </div>
         </div>
-    </div>
+    </div></div>
 </template>
 <style scoped>
 .line::after {

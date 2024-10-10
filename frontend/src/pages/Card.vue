@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import Cardinfo from '../components/Cardinfo.vue';
+import Header from '../components/Header.vue';
 
 /*
 const id = useRoute()["query"]["id"]
@@ -13,6 +14,7 @@ const len = Info.value.characteristic.length
 </script>
 
 <template>
+    <div><Header></Header>
     <div class="grid">
         <Cardinfo 
             :ListImg="Info.ListImg" 
@@ -27,5 +29,5 @@ const len = Info.value.characteristic.length
             :minrating="Info.minrating"
             :maxrating="Info.maxrating"
         />
-    </div>
+    </div></div>
 </template>

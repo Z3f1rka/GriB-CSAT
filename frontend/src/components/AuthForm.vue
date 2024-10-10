@@ -85,65 +85,67 @@ function data() {
 </script>
 
 <template>
-  <div class="bg-zinc-900 h-2/3 w-full rounded">
+  <div class="bg-zinc-900 h-2/3 w-full rounded pt-4">
     <div
       class="grid grid-cols-8 grid-rows-10 items-center h-full w-full gap-10 py-10"
     >
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
+        <p class="text-zinc-300 mb-2">Имя</p>
         <input
           type="text"
-          class="w-full h-full px-5 rounded"
+          class="w-full py-2 px-5 rounded"
           placeholder="Имя"
           v-model="name"
         />
       </div>
-      <div class="h-10 col-span-6 col-start-2">
+      <div class="mt-5 col-span-6 col-start-2">
         <h1 class="text-main">{{ err_name }}</h1>
       </div>
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
+        <p class="text-zinc-300 mb-2">Почта</p>
         <input
           type="text"
-          class="w-full h-full px-5 rounded"
+          class="w-full py-2 px-5 rounded"
           placeholder="Почта"
           v-model="email"
         />
       </div>
-      <div class="h-10 col-span-6 col-start-2">
+      <div class="mt-5 col-span-6 col-start-2">
         <h1 class="text-main">{{ err_email }}</h1>
       </div>
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
+        <p class="text-zinc-300 mb-2">Пароль</p>
         <input
           type="password"
-          class="w-full h-full px-5 rounded"
+          class="w-full py-2 px-5 rounded"
           placeholder="Пароль"
           v-model="password"
         />
       </div>
-      <div class="h-10 col-span-6 col-start-2">
-        <h1 class="text-main">{{ err_pass }}</h1>
+      <div class="col-span-6 col-start-2">
+        <h1 class="mt-5  text-main">{{ err_pass }}</h1>
       </div>
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
+        <p class="text-zinc-300 mb-2">Повторите пароль</p>
         <input
           type="password"
-          class="w-full h-full px-5 rounded"
+          class="w-full py-2 px-5 rounded"
           placeholder="Повторите пароль"
           v-model="password_a"
         />
       </div>
-      <div class="h-10 col-span-6 col-start-2">
+      <div class="mt-5 col-span-6 col-start-2">
         <h1 class="text-main">{{ err_end_pass }}</h1>
       </div>
-      <div class="col-span-1 col-start-2">
-        <input type="checkbox" v-model="role" style="width: 40px; height: 40px;"/>
-      </div>
-      <div class="col-span-5 col-start-3">
-        <h1 class="text-white text-lg">- Я собираюсь выставлять свои товары</h1>
+      <div class="col-span-6 col-start-2 inline-flex">
+        <input type="checkbox" v-model="role" style="width: 20px; height: 20px;" class="mt-1 mr-2" />
+        <h1 class="text-white text-lg mb-4">- Я собираюсь выставлять свои товары</h1>
       </div>
       <div
         class="rounded row-span-1 col-span-4 col-start-3 h-10 w-full bg-main"
       >
         <button
-          class="w-full h-full px-5 rounded text-white text-center"
+          class="w-full h-full px-5 rounded text-white text-center text-lg"
           @click="data"
         >
           Подтвердить

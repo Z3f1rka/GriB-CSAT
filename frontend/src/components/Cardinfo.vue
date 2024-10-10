@@ -152,6 +152,9 @@ const fb = ref(false)
                 <textarea class="rounded-lg w-full resize-none p-1 text-lg" style="height: 83%;" placeholder="Ваш отзыв..."></textarea>
             </div>
         </transition>
+        <transition name="fake">
+            <div v-if="fb" class="text-white grid bg-main rounded-lg py-2 col-span-3 col-start-3 cursor-pointer text-lg">Отправить</div>
+        </transition>
         </div>
         <transition>
         <div v-if="fb" @click="fb = false" class="rounded-b-lg text-main text-center text-2xl p-2 pt-4 mx-7 cursor-pointer border-2 border-zinc-900 bg-zinc-900">
@@ -210,6 +213,12 @@ const fb = ref(false)
 .fade-enter-active {
   background-color: #18181B;
   animation: added 0.5s reverse;
+}
+.fake-leave-active {
+    animation: added 0.5 reverse;
+}
+.fake-enter-active {
+  animation: added 0.5s;
 }
 @keyframes added {
 from {

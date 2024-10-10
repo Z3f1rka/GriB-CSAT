@@ -2,6 +2,8 @@
 import { ref, onMounted, watch } from "vue";
 import Card from "../components/Card.vue";
 import Category from "../components/Category.vue";
+import Header from "../components/Header.vue";
+
 
 var isCateg = ref(false);
 
@@ -75,6 +77,7 @@ onMounted(() => {
 })
 </script>
 <template>
+  <div><Header></Header>
   <div class="text-center">
     <div class="border-b-2 border-zinc-900 mt-10 inline-flex">
       <div 
@@ -163,7 +166,7 @@ onMounted(() => {
     </div>
     </div>
     </div>
-  </div>
+  </div></div>
 </template>
 <style scoped>
 .cat-button{
