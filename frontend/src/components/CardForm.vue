@@ -50,23 +50,25 @@ function removeFile(id) {
 }
 
 async function uploadFile(file) {
+  var access_token = localStorage.getItem("access_token");
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", file.file);
 
   try {
     const response = await axios.post(
-      "http://localhost:8000/upload",
+      "http://localhost:8080/api/upload_images",
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
+          authorization: `${access_token}`,
         },
       }
     );
-    alert(response.data.message);
   } catch (error) {
     console.error(error);
     alert("Error uploading file.");
+    // TODO
   }
 }
 
@@ -130,9 +132,9 @@ function data() {
     console.log(values);
     var resp_data = auth_post("/api/card/add", values);
     if (resp_data) {
-      console.log(choosedFiles.value)
-      for (let i = 0; i < choosedFiles._rawValue.length; i++){
-        uploadFile(choosedFiles._rawValue[i])
+      console.log(choosedFiles._rawValue);
+      for (let i = 0; i < choosedFiles._rawValue.length; i++) {
+        uploadFile(choosedFiles._rawValue[i]);
       }
       router.push("/");
     }
