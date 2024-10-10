@@ -8,6 +8,7 @@ import os
 
 # db imports
 from data import db_session
+from data.users import User
 from data.category import Category
 from data.products import Product
 
@@ -140,7 +141,7 @@ def add_card():
     return make_response("OK", 200)
 
 
-@crud.route('/edit_card/<int:id>', methods=['GET', 'POST'])
+@crud.route('/card/edit/<int:id>', methods=['GET', 'POST'])
 def edit_card(id):
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -170,3 +171,17 @@ def edit_card(id):
 
 # user crud
 # TODO: дописать изменение и удаление
+
+@crud.route("/users/delete/<int:id>")
+def delete(id: int):
+    sess = db_session.create_session()
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    allowed_role = "superuser"
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != allowed_role:
+        return make_response(f"The requester is not {allowed_role}", 403)
+    user = sess.query(User).filter(User.id == id).first()
+    sess.delete(user)
+    sess.commit()
+    return make_response("OK", 200)
