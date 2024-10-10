@@ -49,10 +49,11 @@ function removeFile(id) {
   }
 }
 
-async function uploadFile(file) {
+async function uploadFile(file, product_id) {
   var access_token = localStorage.getItem("access_token");
   const formData = new FormData();
   formData.append("file", file.file);
+  formData.append("product_id", product_id)
 
   try {
     const response = await axios.post(
@@ -130,14 +131,15 @@ function data() {
       categories: resList,
     };
     console.log(values);
-    var resp_data = auth_post("/api/card/add", values);
-    if (resp_data) {
+    var resp_data;
+    auth_post("/api/card/add", values).then((response) => {
+      console.log(response);
       console.log(choosedFiles._rawValue);
       for (let i = 0; i < choosedFiles._rawValue.length; i++) {
-        uploadFile(choosedFiles._rawValue[i]);
+        uploadFile(choosedFiles._rawValue[i], response.product_id);
       }
       router.push("/");
-    }
+    });
   }
 }
 </script>
