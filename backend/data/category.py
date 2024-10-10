@@ -12,5 +12,5 @@ class Category(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
     title = sqlalchemy.Column(sqlalchemy.String, nullable=False, primary_key=True)
     
-    products = orm.relationship('CategoryProduct', back_populates='category')
-    criterion = orm.relationship('Criterion', back_populates='category')
+    products = orm.relationship('CategoryProduct', back_populates='category', cascade='all, delete')
+    criterion = orm.relationship('Criterion', back_populates='category', cascade='all, delete')

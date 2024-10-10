@@ -128,9 +128,7 @@ def add_card():
         return make_response("The requester is not vendor", 403)
     
     vendor_id = payload['sub']
-    vendor_id = 1
     data = request.json
-    print(data)
     title = data['title']
     if title == '':
         return make_response("Title is required", 400)
@@ -141,6 +139,33 @@ def add_card():
     sess.commit()
     return make_response("OK", 200)
 
+
+@crud.route('/edit_card/<int:id>', methods=['GET', 'POST'])
+def edit_card(id):
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "vendor":
+        return make_response("The requester is not vendor", 403)
+    vendor_id = payload['sub']
+
+    sess = db_session.create_session()
+    product = sess.query(Product).filter(Product.id == id).first()
+    if product.vendor_id != vendor_id:
+        make_response("The requester is not vendor of the product", 403)
+        
+    if request.method == 'GET':
+        return jsonify({'id': product.id, 'title': product.title, 'description': product.description, 'characteristics': product.characteristics, 'categories': product.categories})
+    
+    elif request.method == 'POST':
+        data = request.json
+        if data['title'] == '':
+            return make_response("Title is required", 400)
+        product.title = data['title']       
+        product.description = data['description']
+        product.characteristics = data['characteristics']
+        product.categories = data['categories'] # []
+        
 # TODO: дописать изменение карт
 
 # user crud
