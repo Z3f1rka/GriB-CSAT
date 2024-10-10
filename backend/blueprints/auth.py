@@ -121,7 +121,7 @@ def register():
     return {'refresh_token': refresh_token, 'access_token': access_token}
 
 
-@auth.route('/api/auth/login', methods=['POST'])
+@auth.route('/login', methods=['POST'])
 def login():
     sess = db_session.create_session()
     data = request.json
@@ -141,7 +141,7 @@ def login():
         return {'refresh_token': refresh_token, 'access_token': access_token}
 
 
-@auth.route('/api/auth/refresh', methods=['POST'])
+@auth.route('/refresh', methods=['POST'])
 def refresh():
     sess = db_session.create_session()
     data = request.headers.get("authorization")

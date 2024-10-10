@@ -6,6 +6,7 @@ import os
 # db imports
 from data import db_session
 from data.category import Category
+from data.products import Product
 
 ALLOWED_MEDIA = []
 DESTINATION = ""
@@ -65,5 +66,22 @@ def add_category():
         title=data['title'],
         criterions=';'.join(list(map(lambda x: x.lower(), data["chars"])))
     ))
+    sess.commit()
+    return make_response("OK", 200)
+
+
+@crud.route("/delete_card/<int:id>", methods=["DELETE"])
+def delete_card(id: int):
+    sess = db_session.create_session()
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "admin":
+        return make_response("The requester is not admin", 403)
+    elif payload['role'] == "vendor":
+        if not sess.query(Product).filter(Product.id == id).first().vendor_id == payload['sub']:
+            return make_response("The requester is not have this product", 403)
+    card = sess.query(Product).filter(Product.id == id).first()
+    sess.delete(card)
     sess.commit()
     return make_response("OK", 200)
