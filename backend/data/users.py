@@ -19,4 +19,4 @@ class User(SqlAlchemyBase, SerializerMixin):
     phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)
     
     products = orm.relationship('Product', back_populates='vendor', cascade='all, delete')
-    feedbacks = orm.relationship('Feedback', back_populates='user', cascade='all, delete')
+    feedbacks = orm.relationship('Feedback', back_populates='user')

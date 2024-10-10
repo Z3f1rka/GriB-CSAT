@@ -1,6 +1,3 @@
-from crypt import methods
-from unicodedata import category
-
 from flask import Blueprint, jsonify, request, redirect, make_response
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
@@ -11,6 +8,7 @@ from data import db_session
 from data.users import User
 from data.category import Category
 from data.products import Product
+from data.criterion import Criterion
 
 ALLOWED_MEDIA = []
 DESTINATION = ""
@@ -67,12 +65,19 @@ def add_category():
         return make_response("The requester is not admin", 403)
     if sess.query(Category).filter(Category.title == data['title']).first():
         return make_response("This category exists", 400)
-    sess.add(Category(
-        title=data['title'],
-        criterions=';'.join(list(map(lambda x: x.lower(), data["chars"])))
-    ))
+    cat = Category(title=data['title'])
+    sess.add(cat)
+    sess.commit()
+
+    cat = sess.query(Category).filter(Category.title == data['title']).first()
+    print(cat.id)
+    criterions = data['criterions']
+    # criterions = [title, ...]
+    for criterion in criterions:
+        sess.add(Criterion(title=criterion, category_id=cat.id))
     sess.commit()
     return make_response("OK", 200)
+
 
 @crud.route("/category/all", methods=[])
 def all():
