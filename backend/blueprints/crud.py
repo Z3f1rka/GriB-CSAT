@@ -1,3 +1,6 @@
+from crypt import methods
+from unicodedata import category
+
 from flask import Blueprint, jsonify, request, redirect, make_response
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
@@ -52,7 +55,7 @@ def upload_images():
 
 # category crud
 
-@crud.route("/add_category", methods=["POST"])
+@crud.route("/category/add", methods=["POST"])
 def add_category():
     sess = db_session.create_session()
     data = request.json
@@ -69,6 +72,30 @@ def add_category():
     ))
     sess.commit()
     return make_response("OK", 200)
+
+@crud.route("/category/all", methods=[])
+def all():
+    """{id:, title:, criterion: [{id, title}, ...]}"""
+    sess = db_session.create_session()
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "vendor":
+        return make_response("User is not vendor", 403)
+    categories = sess.query(Category).all()
+    responses = []
+    for i in categories:
+        element = {"id": i.id,
+                    "title": i.title,
+                    "criterion": None}
+        criterions = []
+        for j in i.criterion:
+            criterions.append({"id": j.id,
+                              "title": j.title})
+        element["criterion"] = criterions
+        responses.append(element)
+    return responses
+
 
 # TODO: дописать удаление, изменение
 
