@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, redirect, make_response
+from flask import Blueprint, jsonify, request, redirect, make_response, send_from_directory
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
 import os
@@ -15,46 +15,36 @@ from data.criterion import Criterion
 from data.categoryproduct import CategoryProduct
 
 ALLOWED_MEDIA = []
-DESTINATION = ""
+DESTINATION = "files/"
 
 
 crud = Blueprint("CRUD", "crud")
 
 @crud.route("/upload_images", methods=["POST", "GET"])
 def upload_images():
+    if 'file' not in request.files:
+        return make_response("No file in request", 400)
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return make_response("No selected file", 400)
+
+    if file:
+        # Сохранение файла
+        file.save(os.path.join(DESTINATION + file.filename))
+        return jsonify({'message': 'File uploaded successfully', 'filename': file.filename}), 200
+
+@crud.route("/send_image/<filename>", methods=["GET"])
+def send_image(filename):
     sess = db_session.create_session()
-    data = request.headers.get("authorization")
-    payload = get_jwt_payload(data)
+    payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
-        return make_response(payload, 401)
-    if payload["role"] != "vendor":
-        return make_response("The requester is not vendor", 403)
-    if request.method == "POST":
-        if request.files:
-            for i, file in enumerate(request.files):
-                try:
-                    image = request.files[f"images[{i}]"]
-                    if image.content_type not in ALLOWED_MEDIA:
-                        return make_response("Unsupported Media Type", 415)
-                    image.save(os.path.join(DESTINATION), secure_filename(image.filename))
-                except (KeyError, FileNotFoundError):
-                    return jsonify("An error occurred while processing the file."), 500
-            return "saved"
-        return make_response("No files", 400)
-    if request.method == "GET":
-        return """<!doctype html>
-<html>
-  <head>
-    <title>File Upload</title>
-  </head>
-  <body>
-    <h1>File Upload</h1>
-    <form method="POST" action="" enctype="multipart/form-data">
-      <p><input type="file" name="file"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-  </body>
-</html>"""
+        return make_response("Unathorized", 401)
+    try:
+        return send_from_directory(DESTINATION, filename)
+    except FileNotFoundError:
+        return make_response("File not found", 400)
 
 # category crud
 
@@ -103,13 +93,16 @@ def delete_category(id):
 
 @crud.route("/category/edit/<int:id>", methods=["GET", "POST"])
 def edit_category(id):
+    data = request.json
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     if payload['role'] != "admin":
         return make_response("The requester is not admin", 403)
+    sess = db_session.create_session()
     if not sess.query(Category).filter(Category.id == id).first():
         return make_response("This category does not exist", 403)
+
     cat = sess.query(Category).filter(Category.id == id).first()
     all_criterions = cat.criterion
 
