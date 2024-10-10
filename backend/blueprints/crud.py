@@ -112,7 +112,6 @@ def add_card():
     sess.commit()
     return make_response("OK", 200)
 
-<<<<<<< HEAD
 
 @crud.route('/edit_card/<int:id>', methods=['GET', 'POST'])
 def edit_card(id):
@@ -140,9 +139,7 @@ def edit_card(id):
         product.characteristics = data['characteristics']
         product.categories = data['categories'] # []
         
-=======
 # TODO: дописать изменение карт
 
 # user crud
 # TODO: дописать изменение и удаление
->>>>>>> 605077e1d6d7ef1a9acd02bb6d888ee4892cc131
