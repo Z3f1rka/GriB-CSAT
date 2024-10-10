@@ -170,7 +170,7 @@ def edit_card(id):
 # user crud
 # TODO: дописать изменение и удаление
 
-@crud.route("/users/delete/<int:id>", methods=["DELETE"])
+@crud.route("/user/delete/<int:id>", methods=["DELETE"])
 def delete(id: int):
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
@@ -188,5 +188,32 @@ def delete(id: int):
         sess.delete(user)
         session = sess.query(Session).filter(Session.user_id == user.id).first()
         sess.delete(session)
+    sess.commit()
+    return make_response("OK", 200)
+
+
+@crud.route("/user/update/<int:id>", methods=["PUT"])
+def update(id: int):
+    sess = db_session.create_session()
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    data = request.json
+    user = sess.query(User).filter(User.id == id).first()
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if not user.id == payload['sub']:
+        return make_response("Users doesnt match", 403)
+
+    if "email" in data.keys():
+        if sess.query(User).filter(User.email == data["email"]).first():
+            return make_response("This email is not unique", 400)
+        user.email = data['email']
+    if "name" in data.keys():
+        if sess.query(User).filter(User.name == data["name"]).first():
+            return make_response("This name is not unique", 400)
+        user.name = data["name"]
+    if "phone_number" in data.keys():
+        if sess.query(User).filter(User.phone_number == data["phone_number"]).first():
+            return make_response("This phone number is not unique", 400)
+        user.phone_number = data["phone_number"]
     sess.commit()
     return make_response("OK", 200)

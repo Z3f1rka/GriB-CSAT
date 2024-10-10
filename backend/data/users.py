@@ -1,5 +1,7 @@
 import datetime
 from datetime import timezone
+from enum import unique
+
 import sqlalchemy
 from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
@@ -16,7 +18,7 @@ class User(SqlAlchemyBase, SerializerMixin):
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     registration_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
-    phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None)
+    phone_number = sqlalchemy.Column(sqlalchemy.String, nullable=True, default=None, unique=True)
     
     products = orm.relationship('Product', back_populates='vendor', cascade='all, delete')
     feedbacks = orm.relationship('Feedback', back_populates='user')
