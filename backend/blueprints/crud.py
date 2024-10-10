@@ -1,57 +1,77 @@
-from flask import Blueprint, jsonify, request, make_response
 from blueprints.auth import get_jwt_payload
+from flask import Blueprint, jsonify, request, make_response, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 
 # db imports
 from data import db_session
+from data.feedbacks import Feedback
+from data.rating import Rating
 from data.users import User
 from data.category import Category
 from data.products import Product
+from data.sessions import Session
 from data.criterion import Criterion
 from data.categoryproduct import CategoryProduct
+from data.photos import Photo
 
 ALLOWED_MEDIA = []
-DESTINATION = ""
+DESTINATION = "files/"
 
 
 crud = Blueprint("CRUD", "crud")
 
-@crud.route("/upload_images", methods=["POST", "GET"])
+@crud.route("/upload_images", methods=["POST"])
 def upload_images():
     sess = db_session.create_session()
-    data = request.headers.get("authorization")
-    payload = get_jwt_payload(data)
+    payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
-        return make_response(payload, 401)
-    if payload["role"] != "vendor":
-        return make_response("The requester is not vendor", 403)
-    if request.method == "POST":
-        if request.files:
-            for i, file in enumerate(request.files):
-                try:
-                    image = request.files[f"images[{i}]"]
-                    if image.content_type not in ALLOWED_MEDIA:
-                        return make_response("Unsupported Media Type", 415)
-                    image.save(os.path.join(DESTINATION), secure_filename(image.filename))
-                except (KeyError, FileNotFoundError):
-                    return jsonify("An error occurred while processing the file."), 500
-            return "saved"
-        return make_response("No files", 400)
-    if request.method == "GET":
-        return """<!doctype html>
-<html>
-  <head>
-    <title>File Upload</title>
-  </head>
-  <body>
-    <h1>File Upload</h1>
-    <form method="POST" action="" enctype="multipart/form-data">
-      <p><input type="file" name="file"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-  </body>
-</html>"""
+        return make_response("Unathorized", 401)
+    if payload["role"] != 'vendor':
+        return make_response("Sender is not vendor", 400)
+    if 'file' not in request.files:
+        return make_response("No file in request", 400)
+
+    file = request.files['file']
+    print(request.files)
+    print(request.form)
+    
+    data = request.form["product_id"]
+
+    if file.filename == '':
+        return make_response("No selected file", 400)
+
+    if file:
+        # Сохранение файла
+        filename = file.filename
+        filenames = [fn for fn in os.listdir("files/") if fn.split("(")[0] == filename.split(".")[0] ]
+
+        if filenames:
+            filenames.sort()
+            filename = filename.split(".")[0] + \
+                f"({int(filenames[-1].split(".")[0].rstrip(")").split("(")[1]) + 1})." \
+                    + filename.split(".")[1]
+        else:
+            filename = filename.split(".")[0] + "(0)." + filename.split(".")[1]
+            print(filename)
+            print(os.listdir("files/"))
+            print(filename in os.listdir("files/"))
+        file.save(os.path.join(DESTINATION, filename))
+        file = Photo(path=filename,
+                     product_id=data)
+        sess.add(file)
+        sess.commit()
+        return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
+
+@crud.route("/send_image/<filename>", methods=["GET"])
+def send_image(filename):
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    try:
+        return send_from_directory(DESTINATION, filename) # TODO: посмотреть надо ли делать слеш
+    except FileNotFoundError:
+        return make_response("File not found", 400)
 
 # category crud
 
@@ -98,20 +118,25 @@ def delete_category(id):
     return make_response("OK", 200)
 
 
-@crud.route("/category/edit/<int:id>", methods=["GET", "POST"])
+@crud.route("/category/edit/<int:id>", methods=["GET", "PUT"])
 def edit_category(id):
+    sess = db_session.create_session()
+    data = request.json
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     if payload['role'] != "admin":
-        return make_response("The requester is not admin", 403)    
+        return make_response("The requester is not admin", 403)
     if not sess.query(Category).filter(Category.id == id).first():
         return make_response("This category does not exist", 403)
-        
+
+
     sess = db_session.create_session()
     cat = sess.query(Category).filter(Category.id == id).first()
     all_criterions = cat.criterion
-    
+
+    all_criterions = cat.criterion
+
     if request.method == 'GET':
         # {'title': , 'criterions': [{}]}
         res = {'title': cat.title, 'criterions': []}
@@ -119,8 +144,8 @@ def edit_category(id):
         for i in cat.criterion:
             criterions.append({'id': i.id, 'title': i.title})
         return res
-    
-    elif request.method == 'POST':
+
+    elif request.method == 'PUT':
         data = request.json
         cat.title = data['title']
         criterions = data['criterions'] # [{'id': , 'title':}]
@@ -133,8 +158,23 @@ def edit_category(id):
                 to_change = sess.query(Criterion).filter(Criterion.id == crit_id).first() # если поменяли
                 to_change.title = crit_title
         sess.commit()
-        
+
     elif request.method == 'PUT':
+        criterions = data['criterions']
+        for crit in all_criterions:
+            criterions_id = [i['id'] for i in criterions]
+            if not crit.id in criterions_id:
+                sess.delete(crit)
+        criterions = data['criterions'] # [{'id': , 'title':}]
+        for criterion in criterions:
+            crit_id = criterion['id']
+            crit_title = criterion['title']
+            if not sess.query(Criterion).filter(Criterion.id == crit_id).first(): # если новый
+                sess.add(Criterion(title=crit_title, category_id=cat.id))
+            else:
+                to_change = sess.query(Criterion).filter(Criterion.id == crit_id).first() # если поменяли
+                to_change.title = crit_title
+        sess.commit()
         criterions = data['criterions']
         for crit in all_criterions:
             criterions_id = [i['id'] for i in criterions]
@@ -143,14 +183,14 @@ def edit_category(id):
         sess.commit()
 
 
-@crud.route("/category/all", methods=['POST'])
+@crud.route("/category/all", methods=['GET'])
 def all():
-    """{id:, title:, criterion: [{id, title}, ...]}"""
+    """:return:{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
-    if payload['role'] != "vendor":
+    if payload['role'] not in ["vendor", "admin"]:
         return make_response("User is not vendor", 403)
     categories = sess.query(Category).all()
     responses = []
@@ -167,7 +207,7 @@ def all():
     return responses
 
 
-# TODO: дописать удаление, изменение
+# TODO: дописать изменение
 
 # CRUD card
 
@@ -191,7 +231,6 @@ def delete_card(id: int):
 @crud.route("/card/add", methods=["POST"])
 def add_card():
     sess = db_session.create_session()
-
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
@@ -214,7 +253,7 @@ def add_card():
         category_id = cat.id
         sess.add(CategoryProduct(product_id=product_id, category_id=category_id))
     sess.commit()
-    return make_response("OK", 200)
+    return jsonify({"product_id": product_id}), 200
 
 
 @crud.route('/card/edit/<int:id>', methods=['GET', 'POST'])
@@ -242,22 +281,122 @@ def edit_card(id):
         product.description = data['description']
         product.characteristics = data['characteristics']
         product.categories = data['categories'] # []
-        
-# TODO: дописать изменение карт
+        sess.commit()
+        return jsonify({"product_id": product.id}), 200
+
 
 # user crud
-# TODO: дописать изменение и удаление
-
-@crud.route("/users/delete/<int:id>")
+@crud.route("/user/delete/<int:id>", methods=["DELETE"])
 def delete(id: int):
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
     allowed_role = "superuser"
     if type(payload) != type(dict()):
-        return make_response("Unathorized", 401)
+        return make_response("Unauthorized", 401)
     if payload['role'] != allowed_role:
         return make_response(f"The requester is not {allowed_role}", 403)
     user = sess.query(User).filter(User.id == id).first()
-    sess.delete(user)
+    if user.role == "user":
+        user.role = "deleted"
+        session = sess.query(Session).filter(Session.user_id == user.id).first()
+        sess.delete(session)
+    elif user.role == "vendor":
+        sess.delete(user)
+        session = sess.query(Session).filter(Session.user_id == user.id).first()
+        sess.delete(session)
     sess.commit()
     return make_response("OK", 200)
+
+
+@crud.route("/user/update/<int:id>", methods=["PUT"])
+def update(id: int):
+    sess = db_session.create_session()
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    data = request.json
+    user = sess.query(User).filter(User.id == id).first()
+    if type(payload) != type(dict()):
+        return make_response("Unauthorized", 401)
+    if not user.id == payload['sub']:
+        return make_response("User does not match", 403)
+
+    if "email" in data.keys():
+        if sess.query(User).filter(User.email == data["email"]).first():
+            return make_response("This email is not unique", 400)
+        user.email = data['email']
+    if "name" in data.keys():
+        if sess.query(User).filter(User.name == data["name"]).first():
+            return make_response("This name is not unique", 400)
+        user.name = data["name"]
+    if "phone_number" in data.keys():
+        if sess.query(User).filter(User.phone_number == data["phone_number"]).first():
+            return make_response("This phone number is not unique", 400)
+        user.phone_number = data["phone_number"]
+    sess.commit()
+    return make_response("OK", 200)
+
+
+# feedbacks
+# TODO: сделать изменение удаление отзывов
+@crud.route("/feedback/add", methods=["POST"])
+def add():
+    """
+    {feedback: {
+        text:,
+        product_id:
+    },
+    ratings: [{rating: , criterion:}]}
+    """
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "user":
+        return make_response(f"The requester is not user", 403)
+
+    # TODO: сделать валидацию входящих  данных
+
+    feedback = Feedback(text=data['feedback']['text'],
+                        product_id=data['feedback']['product_id'],
+                        user_id=payload['sub'])
+    sess.add(feedback)
+    sess.commit()
+
+    feedback_id = sess.query(Feedback).all()[-1]
+    for i in data['ratings']:
+        rating = Rating(rating=i['rating'],
+                        feedback_id=feedback_id,
+                        criterion_id=i["criterion"])
+        sess.add(rating)
+    sess.commit()
+    return make_response("OK", 200)
+
+
+@crud.route("/feedback/update/<int:id>", methods=["PUT"])
+def update1(id):
+    """
+        {feedback: {
+            text:,
+            feedback_id
+        },
+        ratings: [{rating: , criterion:, rating_id:]}
+        """
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['id'] != id:
+        return make_response(f"User is not owner", 403)
+
+    feedback = sess.query(Feedback).filter(Feedback.id == id).first()
+    feedback.text = data['feedback']['text']
+    sess.commit()
+
+    for i in data['ratings']:
+        rating = sess.query(Rating).filter(Rating.id == i['rating_id']).first()
+        rating.rating = i['rating']
+        rating.criterion = i['criterion']
+        sess.commit()
+    return make_response("OK", 200)
+

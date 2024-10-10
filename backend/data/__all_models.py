@@ -6,3 +6,4 @@ from . import criterion
 from . import categoryproduct
 from . import rating
 from . import sessions
+from . import photos

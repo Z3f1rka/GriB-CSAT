@@ -14,7 +14,7 @@ class Feedback(SqlAlchemyBase, SerializerMixin):
     text = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     public_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now(timezone.utc))
     product_id = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("products.id"), nullable=False)
-    deprecated = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+    deprecated = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
     
     user = orm.relationship('User')
     product = orm.relationship('Product', back_populates='feedbacks')

@@ -22,6 +22,10 @@ var chooseCateg = ref([]);
 var selectedFile;
 var choosedFiles = ref([]);
 
+auth_get("/api/category/all").then((data) => {
+  categList.value = data;
+});
+
 function onFileChange(event) {
   selectedFile = event.target.files[0];
 }
@@ -45,24 +49,27 @@ function removeFile(id) {
   }
 }
 
-async function uploadFile(file) {
+async function uploadFile(file, product_id) {
+  var access_token = localStorage.getItem("access_token");
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", file.file);
+  formData.append("product_id", product_id)
 
   try {
     const response = await axios.post(
-      "http://localhost:8000/upload",
+      "http://localhost:8080/api/upload_images",
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
+          authorization: `${access_token}`,
         },
       }
     );
-    alert(response.data.message);
   } catch (error) {
     console.error(error);
     alert("Error uploading file.");
+    // TODO
   }
 }
 
@@ -107,22 +114,32 @@ function data() {
   } else {
     err_char.value = "";
   }
-  if (chategList._rawValue.length == 0) {
+  if (chooseCateg._rawValue.length == 0) {
     can_reg = false;
     err_categ.value = "Обязательное поле";
   }
+  console.log(can_reg);
   if (can_reg) {
+    var resList = [];
+    for (let i = 0; i < chooseCateg.value.length; i++) {
+      resList.push(chooseCateg._rawValue[i].title);
+    }
     const values = {
       title: title.value,
       description: description.value,
       characteristics: characteristics.value,
-      categList: categList._rawValue,
+      categories: resList,
     };
     console.log(values);
-    var resp_data = auth_post("/api/", values);
-    if (resp_data) {
+    var resp_data;
+    auth_post("/api/card/add", values).then((response) => {
+      console.log(response);
+      console.log(choosedFiles._rawValue);
+      for (let i = 0; i < choosedFiles._rawValue.length; i++) {
+        uploadFile(choosedFiles._rawValue[i], response.product_id);
+      }
       router.push("/");
-    }
+    });
   }
 }
 </script>
@@ -208,16 +225,21 @@ function data() {
     </div>
     <div class="grid grid-cols-8 pb-5">
       <div class="col-span-2"></div>
-      <div class="col-start-3 col-span-6 h-40 text-white">
-        <div>
-          <input type="file" @change="onFileChange" />
-          <button @click="addFile">Добавить</button>
+      <div class="col-start-2 col-span-6 h-40 text-white">
+        <div class="grid grid-rows-1 grid-cols-3">
+          <input type="file" @change="onFileChange" class="col-span-2 mt-3" />
+          <button
+            @click="addFile"
+            class="rounded col-start-3 bg-secondary m-2 p-2 text-white"
+          >
+            Добавить
+          </button>
         </div>
         <div>
           <div
             v-for="file in choosedFiles"
             :key="file"
-            class="cursor-pointer"
+            class="cursor-pointer bg-tgray m-2 px-3 rounded hover:bg-main"
             @click="removeFile(file.id)"
           >
             <p>{{ file.file.name }}</p>
