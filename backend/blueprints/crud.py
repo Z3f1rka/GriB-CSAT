@@ -128,11 +128,9 @@ def edit_category(id):
         sess.commit()
 
 
-
-
 @crud.route("/category/all", methods=['POST'])
 def all():
-    """{id:, title:, criterion: [{id, title}, ...]}"""
+    """:return:{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -315,3 +313,33 @@ def add():
         sess.add(rating)
         sess.commit()
     return make_response("OK", 200)
+
+
+@crud.route("/feedback/update/<int:id>", methods=["POST"])
+def update(id: int):
+    """
+        {feedback: {
+            text:,
+            feedback_id
+        },
+        ratings: [{rating: , criterion:, rating_id:]}
+        """
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['id'] != id:
+        return make_response(f"User does not owner", 403)
+
+    feedback = sess.query(Feedback).filter(Feedback.id == id).first()
+    feedback.text = data['feedback']['text']
+    sess.commit()
+
+    for i in data['ratings']:
+        rating = sess.query(Rating).filter(Rating.id == i['rating_id']).first()
+        rating.rating = i['rating']
+        rating.criterion = i['criterion']
+        sess.commit()
+    return make_response("OK", 200)
+
