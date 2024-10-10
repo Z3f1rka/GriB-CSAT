@@ -22,3 +22,4 @@ class Product(SqlAlchemyBase, SerializerMixin):
     vendor = orm.relationship('User')
     categories = orm.relationship('CategoryProduct', back_populates='product')
     feedbacks = orm.relationship('Feedback', cascade='all, delete')
+    photos = orm.relationship('Photo', back_populates='product', cascade='all, delete')
