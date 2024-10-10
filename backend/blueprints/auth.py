@@ -128,7 +128,7 @@ def login():
     data = request.json
     user = sess.query(User).filter(User.name == data['name']).first()
     if not user:
-        return make_response("User not found", 400)
+        return make_response("User not found", 404)
     elif not check_password_hash(user.hashed_password, data['pswd']):
         return make_response("Wrong password", 400)
     elif user.role == "deleted":
