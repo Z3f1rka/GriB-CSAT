@@ -130,7 +130,10 @@ function data() {
     console.log(values);
     var resp_data = auth_post("/api/card/add", values);
     if (resp_data) {
-      
+      console.log(choosedFiles.value)
+      for (let i = 0; i < choosedFiles._rawValue.length; i++){
+        uploadFile(choosedFiles._rawValue[i])
+      }
       router.push("/");
     }
   }
