@@ -5,6 +5,8 @@ import os
 
 # db imports
 from data import db_session
+from data.feedbacks import Feedback
+from data.rating import Rating
 from data.users import User
 from data.category import Category
 from data.products import Product
@@ -119,7 +121,7 @@ def all():
     return responses
 
 
-# TODO: дописать удаление, изменение
+# TODO: дописать изменение
 
 # CRUD card
 
@@ -187,12 +189,9 @@ def edit_card(id):
         product.description = data['description']
         product.characteristics = data['characteristics']
         product.categories = data['categories'] # []
-        
-# TODO: дописать изменение карт
+
 
 # user crud
-# TODO: дописать изменение и удаление
-
 @crud.route("/user/delete/<int:id>", methods=["DELETE"])
 def delete(id: int):
     sess = db_session.create_session()
@@ -239,4 +238,41 @@ def update(id: int):
             return make_response("This phone number is not unique", 400)
         user.phone_number = data["phone_number"]
     sess.commit()
+    return make_response("OK", 200)
+
+
+# feedbacks
+# TODO: сделать изменение удаление отзывов
+@crud.route("/feedback/add", methods=["POST"])
+def add():
+    """
+    {feedback: {
+        text:,
+        product_id:
+    },
+    ratings: [{rating: , criterion:}]}
+    """
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "user":
+        return make_response(f"The requester is not user", 403)
+
+    # TODO: сделать валидацию входящих  данных
+
+    feedback = Feedback(text=data['feedback']['text'],
+                        product_id=data['feedback']['product_id'],
+                        user_id=payload['sub'])
+    sess.add(feedback)
+    sess.commit()
+
+    feedback_id = sess.query(Feedback).all()[-1]
+    for i in data['ratings']:
+        rating = Rating(rating=i['rating'],
+                        feedback_id=feedback_id,
+                        criterion_id=i["criterion"])
+        sess.add(rating)
+        sess.commit()
     return make_response("OK", 200)

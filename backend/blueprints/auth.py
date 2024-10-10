@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, jsonify, request, redirect, make_response
 import jwt
@@ -149,7 +148,7 @@ def refresh():
     data = request.headers.get("authorization")
     payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
-        return make_response(payload, 401)
+        return make_response(payload, 400)
     session = sess.query(Session).filter(Session.uuid == payload['jti']).first()
     access_token = create_jwt({
         'type': "jwt_access",
