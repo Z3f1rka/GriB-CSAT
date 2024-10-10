@@ -25,7 +25,6 @@ crud = Blueprint("CRUD", "crud")
 def upload_images():
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
-    data = request.json
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
     if payload["role"] != 'vendor':
@@ -34,6 +33,10 @@ def upload_images():
         return make_response("No file in request", 400)
 
     file = request.files['file']
+    print(request.files)
+    print(request.form)
+    
+    data = request.form["product_id"]
 
     if file.filename == '':
         return make_response("No selected file", 400)
@@ -41,16 +44,24 @@ def upload_images():
     if file:
         # Сохранение файла
         filename = file.filename
-        if filename in os.listdir("files/"):
-            filenames = [i for i in os.listdir("files/") if filename in i]
+        filenames = [fn for fn in os.listdir("files/") if fn.split("(")[0] == filename.split(".")[0] ]
+
+        if filenames:
             filenames.sort()
-            filename = filename + f"({filenames[-1][-2]})"
-        file.save(os.path.join(DESTINATION + filename))
+            filename = filename.split(".")[0] + \
+                f"({int(filenames[-1].split(".")[0].rstrip(")").split("(")[1]) + 1})." \
+                    + filename.split(".")[1]
+        else:
+            filename = filename.split(".")[0] + "(0)." + filename.split(".")[1]
+            print(filename)
+            print(os.listdir("files/"))
+            print(filename in os.listdir("files/"))
+        file.save(os.path.join(DESTINATION, filename))
         file = Photo(path=filename,
-                     product_id=data["product_id"])
+                     product_id=data)
         sess.add(file)
         sess.commit()
-        return jsonify({'message': 'File uploaded successfully', 'filename': file.filename}), 200
+        return jsonify({'message': 'File uploaded successfully', 'filename': filename}), 200
 
 @crud.route("/send_image/<filename>", methods=["GET"])
 def send_image(filename):
@@ -362,7 +373,7 @@ def add():
 
 
 @crud.route("/feedback/update/<int:id>", methods=["PUT"])
-def update(id):
+def update1(id):
     """
         {feedback: {
             text:,
