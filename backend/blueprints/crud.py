@@ -1,6 +1,3 @@
-from crypt import methods
-from unicodedata import category
-
 from flask import Blueprint, jsonify, request, redirect, make_response
 from blueprints.auth import get_jwt_payload, make_session
 from werkzeug.utils import secure_filename
@@ -11,6 +8,7 @@ from data import db_session
 from data.users import User
 from data.category import Category
 from data.products import Product
+from data.sessions import Session
 
 ALLOWED_MEDIA = []
 DESTINATION = ""
@@ -74,7 +72,7 @@ def add_category():
     sess.commit()
     return make_response("OK", 200)
 
-@crud.route("/category/all", methods=[])
+@crud.route("/category/all", methods=["GET"])
 def all():
     """{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
@@ -172,7 +170,7 @@ def edit_card(id):
 # user crud
 # TODO: дописать изменение и удаление
 
-@crud.route("/users/delete/<int:id>")
+@crud.route("/users/delete/<int:id>", methods=["DELETE"])
 def delete(id: int):
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
@@ -182,6 +180,13 @@ def delete(id: int):
     if payload['role'] != allowed_role:
         return make_response(f"The requester is not {allowed_role}", 403)
     user = sess.query(User).filter(User.id == id).first()
-    sess.delete(user)
+    if user.role == "user":
+        user.role = "deleted"
+        session = sess.query(Session).filter(Session.user_id == user.id).first()
+        sess.delete(session)
+    elif user.role == "vendor":
+        sess.delete(user)
+        session = sess.query(Session).filter(Session.user_id == user.id).first()
+        sess.delete(session)
     sess.commit()
     return make_response("OK", 200)

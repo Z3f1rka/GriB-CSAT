@@ -130,6 +130,8 @@ def login():
         return make_response("User not found", 404)
     elif not check_password_hash(user.hashed_password, data['pswd']):
         return make_response("Wrong password", 400)
+    elif user.role == "deleted":
+        return make_response("User deleted", 410)
     else:
         access_token = create_jwt({
             'type': "jwt_access",
