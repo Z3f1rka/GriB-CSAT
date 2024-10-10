@@ -186,7 +186,7 @@ const fb = ref(false)
   z-index: 999;
   left: 35%;
   top: 25%;
-  align-self: center;
+  align-self: right;
   width: 30%;
   height: 50%;
   overflow: auto;
