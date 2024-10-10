@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, jsonify, request, redirect, make_response
 import jwt
@@ -105,6 +104,8 @@ def register():
         data['hashed_password'] = generate_password_hash(data['pswd'])
         data.pop('pswd')
         data.pop('pswd_repeated')
+    else:
+        return make_response("Passwords not match", 400)
     sess.add(
         User(**data)
     )
@@ -127,9 +128,11 @@ def login():
     data = request.json
     user = sess.query(User).filter(User.name == data['name']).first()
     if not user:
-        return make_response("User not found", 404)
+        return make_response("User not found", 400)
     elif not check_password_hash(user.hashed_password, data['pswd']):
         return make_response("Wrong password", 400)
+    elif user.role == "deleted":
+        return make_response("User deleted", 410)
     else:
         access_token = create_jwt({
             'type': "jwt_access",
@@ -147,7 +150,7 @@ def refresh():
     data = request.headers.get("authorization")
     payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
-        return make_response(payload, 401)
+        return make_response(payload, 400)
     session = sess.query(Session).filter(Session.uuid == payload['jti']).first()
     access_token = create_jwt({
         'type': "jwt_access",

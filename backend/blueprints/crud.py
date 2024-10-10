@@ -5,9 +5,12 @@ import os
 
 # db imports
 from data import db_session
+from data.feedbacks import Feedback
+from data.rating import Rating
 from data.users import User
 from data.category import Category
 from data.products import Product
+from data.sessions import Session
 from data.criterion import Criterion
 from data.categoryproduct import CategoryProduct
 
@@ -119,7 +122,7 @@ def edit_category(id):
         for i in cat.criterion:
             criterions.append({'id': i.id, 'title': i.title})
         return res
-    
+
     elif request.method == 'POST':
         data = request.json
         cat.title = data['title']
@@ -145,7 +148,7 @@ def edit_category(id):
 
 @crud.route("/category/all", methods=['POST'])
 def all():
-    """{id:, title:, criterion: [{id, title}, ...]}"""
+    """:return:{id:, title:, criterion: [{id, title}, ...]}"""
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
@@ -167,7 +170,7 @@ def all():
     return responses
 
 
-# TODO: дописать удаление, изменение
+# TODO: дописать изменение
 
 # CRUD card
 
@@ -191,7 +194,6 @@ def delete_card(id: int):
 @crud.route("/card/add", methods=["POST"])
 def add_card():
     sess = db_session.create_session()
-
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
@@ -242,13 +244,10 @@ def edit_card(id):
         product.description = data['description']
         product.characteristics = data['characteristics']
         product.categories = data['categories'] # []
-        
-# TODO: дописать изменение карт
+
 
 # user crud
-# TODO: дописать изменение и удаление
-
-@crud.route("/users/delete/<int:id>")
+@crud.route("/user/delete/<int:id>", methods=["DELETE"])
 def delete(id: int):
     sess = db_session.create_session()
     payload = get_jwt_payload(request.headers.get("authorization"))
@@ -258,6 +257,107 @@ def delete(id: int):
     if payload['role'] != allowed_role:
         return make_response(f"The requester is not {allowed_role}", 403)
     user = sess.query(User).filter(User.id == id).first()
-    sess.delete(user)
+    if user.role == "user":
+        user.role = "deleted"
+        session = sess.query(Session).filter(Session.user_id == user.id).first()
+        sess.delete(session)
+    elif user.role == "vendor":
+        sess.delete(user)
+        session = sess.query(Session).filter(Session.user_id == user.id).first()
+        sess.delete(session)
     sess.commit()
     return make_response("OK", 200)
+
+
+@crud.route("/user/update/<int:id>", methods=["PUT"])
+def update(id: int):
+    sess = db_session.create_session()
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    data = request.json
+    user = sess.query(User).filter(User.id == id).first()
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if not user.id == payload['sub']:
+        return make_response("Users doesnt match", 403)
+
+    if "email" in data.keys():
+        if sess.query(User).filter(User.email == data["email"]).first():
+            return make_response("This email is not unique", 400)
+        user.email = data['email']
+    if "name" in data.keys():
+        if sess.query(User).filter(User.name == data["name"]).first():
+            return make_response("This name is not unique", 400)
+        user.name = data["name"]
+    if "phone_number" in data.keys():
+        if sess.query(User).filter(User.phone_number == data["phone_number"]).first():
+            return make_response("This phone number is not unique", 400)
+        user.phone_number = data["phone_number"]
+    sess.commit()
+    return make_response("OK", 200)
+
+
+# feedbacks
+# TODO: сделать изменение удаление отзывов
+@crud.route("/feedback/add", methods=["POST"])
+def add():
+    """
+    {feedback: {
+        text:,
+        product_id:
+    },
+    ratings: [{rating: , criterion:}]}
+    """
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['role'] != "user":
+        return make_response(f"The requester is not user", 403)
+
+    # TODO: сделать валидацию входящих  данных
+
+    feedback = Feedback(text=data['feedback']['text'],
+                        product_id=data['feedback']['product_id'],
+                        user_id=payload['sub'])
+    sess.add(feedback)
+    sess.commit()
+
+    feedback_id = sess.query(Feedback).all()[-1]
+    for i in data['ratings']:
+        rating = Rating(rating=i['rating'],
+                        feedback_id=feedback_id,
+                        criterion_id=i["criterion"])
+        sess.add(rating)
+        sess.commit()
+    return make_response("OK", 200)
+
+
+@crud.route("/feedback/update/<int:id>", methods=["POST"])
+def update(id: int):
+    """
+        {feedback: {
+            text:,
+            feedback_id
+        },
+        ratings: [{rating: , criterion:, rating_id:]}
+        """
+    sess = db_session.create_session()
+    data = request.json
+    payload = get_jwt_payload(request.headers.get("authorization"))
+    if type(payload) != type(dict()):
+        return make_response("Unathorized", 401)
+    if payload['id'] != id:
+        return make_response(f"User does not owner", 403)
+
+    feedback = sess.query(Feedback).filter(Feedback.id == id).first()
+    feedback.text = data['feedback']['text']
+    sess.commit()
+
+    for i in data['ratings']:
+        rating = sess.query(Rating).filter(Rating.id == i['rating_id']).first()
+        rating.rating = i['rating']
+        rating.criterion = i['criterion']
+        sess.commit()
+    return make_response("OK", 200)
+
