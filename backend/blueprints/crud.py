@@ -190,7 +190,7 @@ def all():
     payload = get_jwt_payload(request.headers.get("authorization"))
     if type(payload) != type(dict()):
         return make_response("Unathorized", 401)
-    if payload['role'] != "vendor":
+    if payload['role'] not in ["vendor", "admin"]:
         return make_response("User is not vendor", 403)
     categories = sess.query(Category).all()
     responses = []
