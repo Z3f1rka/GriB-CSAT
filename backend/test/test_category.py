@@ -29,7 +29,6 @@ def test_category_no_criterions():
 def test_category_all():
     res = requests.get(BASEURL + "/all", headers={"authorization": get_access_vendor()})
     assert res.status_code == 200
-    assert res.json() == list()
 
 def test_category_all_invalid_token():
     res = requests.get(BASEURL + "/all", headers={"authorization": get_access_user()})

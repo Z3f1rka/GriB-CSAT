@@ -39,3 +39,8 @@ pip install -r requirements.txt
 ```bash
 python server.py
 ```
+
+Для запуска теста использовать команду
+```bash
+python -m pytest file
+```

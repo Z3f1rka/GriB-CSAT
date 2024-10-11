@@ -362,7 +362,7 @@ def add():
     feedback_id = sess.query(Feedback).all()[-1]
     for i in data['ratings']:
         rating = Rating(rating=i['rating'],
-                        feedback_id=feedback_id,
+                        feedback_id=feedback_id.id,
                         criterion_id=i["criterion"])
         sess.add(rating)
     sess.commit()

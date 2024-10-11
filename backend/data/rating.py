@@ -9,8 +9,8 @@ from sqlalchemy_serializer import SerializerMixin
 class Rating(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'rating'
     
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False)
-    rating = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, nullable=False, autoincrement=True)
+    rating = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     feedback_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("feedbacks.id"), nullable=False)
     criterion_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("criterions.id"), nullable=False)
     deprecated = sqlalchemy.Column(sqlalchemy.Boolean, default=False)
