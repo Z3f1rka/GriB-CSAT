@@ -1,28 +1,30 @@
 <script setup>
+import { auth_get } from '../requests';
+import { ref } from 'vue';
 
-import { onMounted, ref } from 'vue';
+let status = ref('user')
 
 let isAuth = ref(false)
 function logout(){  
   localStorage.removeItem('refresh_token');
   isAuth.value = false
 }
-function Auth(){
-  if (localStorage.getItem('refresh_token')){
-    isAuth.value = true
-  }
-  else {
-    isAuth.value = false
-  }
+if (localStorage.getItem('refresh_token')){
+  isAuth.value = true
 }
-onMounted(() => {
-  Auth()
+else {
+  isAuth.value = false
+}
+auth_get("/api/auth/get_user").then((res) => {
+  console.log(2)
+  status = res.role
 })
+
 </script>
 
 <template>
   <header class="bg-zinc-900 text-white items-center">
-    <div class="flex justify-between">
+    <div class="flex justify-between" v-if="render">
       <router-link :to="{ path : '/' }">
       <div class="h-20">
         <img src="/logo.svg" class="w-full h-full" />
@@ -46,8 +48,8 @@ onMounted(() => {
         </router-link>
       </div>
       <div v-if="isAuth" class="grid grid-rows-1 grid-cols-2 items-center pr-10 gap-4 w-1/4">
-        <div ></div>
-        <div>
+        <div v-if="status == 'user'"></div>
+        <div v-if="status == 'admin'">
         <router-link :to="{ path : '/admin' }">
           <div>
             <button class="bg-white py-2 px-5 rounded text-main text-2xl cat-button">
@@ -56,9 +58,18 @@ onMounted(() => {
           </div>
         </router-link>
       </div>
+      <div v-if="status == 'vendor'">
+        <router-link :to="{ path : '/myproducts' }">
+          <div>
+            <button class="bg-white py-2 px-5 rounded text-main text-2xl cat-button">
+              Мои продукты
+            </button>
+          </div>
+        </router-link>
+      </div>
         <router-link :to="{ path : '/' }">
           <div class="grid text-center">
-            <div class="bg-white p-2 px-10 rounded text-main text-2xl cursor-pointer cat-button">
+            <div @click="logout" class="bg-white p-2 px-10 rounded text-main text-2xl cursor-pointer cat-button">
               Выйти
             </div>
           </div>

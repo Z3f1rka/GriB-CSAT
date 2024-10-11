@@ -19,6 +19,7 @@ const items = defineProps({
     user_characteristic: Array,
     minrating: Object,
     maxrating: Object,
+    id: String,
 })
 
 const modal1 = ref(false)
@@ -143,19 +144,9 @@ const fb = ref(false)
         <div v-if="fb == true" @click="fb = true" class="rounded-lg text-center text-xl p-2 mx-7 bg-zinc-900 text-zinc-900 select-none">
             Оставить отзыв
         </div>
-        <div class="grid grid-cols-7">
         <transition>
-        <TheFeedback v-if="fb" class="col-span-3" :characteristic="user_characteristic" />
+        <TheFeedback v-if="fb" class="col-span-3" :id="items.id" :characteristic="user_characteristic" />
         </transition>
-        <transition>
-            <div v-if="fb" class="text-center px-5 mt-4 col-span-4">
-                <textarea class="rounded-lg w-full resize-none p-1 text-lg" style="height: 83%;" placeholder="Ваш отзыв..."></textarea>
-            </div>
-        </transition>
-        <transition name="fake">
-            <div v-if="fb" class="text-white grid bg-main rounded-lg py-2 col-span-3 col-start-3 cursor-pointer text-lg">Отправить</div>
-        </transition>
-        </div>
         <transition>
         <div v-if="fb" @click="fb = false" class="rounded-b-lg text-main text-center text-2xl p-2 pt-4 mx-7 cursor-pointer border-2 border-zinc-900 bg-zinc-900">
             ^
