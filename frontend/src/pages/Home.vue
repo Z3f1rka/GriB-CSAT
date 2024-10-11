@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import Card from "../components/Card.vue";
 import { auth_get } from "../requests.js";
+import Header from '../components/Header.vue';
 
 let ListCards = ref([]);
 
@@ -38,6 +39,7 @@ auth_get("/api/products").then((data) => {
 
 </script>
 <template>
+  <div><Header></Header>
   <div class="text-center">
     <span
       class="input text-center my-10 border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 w-full rounded sm:text-sm focus:ring-1 relative"
@@ -75,6 +77,7 @@ auth_get("/api/products").then((data) => {
         />
       </div>
     </div>
+  </div>
   </div>
 </template>
 <style scoped>

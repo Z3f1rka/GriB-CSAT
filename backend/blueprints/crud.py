@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify, request, redirect, make_response, send_from_directory
-from blueprints.auth import get_jwt_payload, make_session
+from blueprints.auth import get_jwt_payload
+from flask import Blueprint, jsonify, request, make_response, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 

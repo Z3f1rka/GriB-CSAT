@@ -122,7 +122,7 @@ console.log(items.characteristic)
                             {{ item.text }}
                         </p>
                     </div>
-                    <div @click="modal1 = true" v-if="len > 8" class="text-xl mt-2 border-2 py-2 px-3 cursor-pointer border-zinc-500 bg-secondary text-main rounded-lg select-none" style="width: 300px;">
+                    <div @click="modal1 = true" v-if="len > 8" class="text-xl mt-2 border-2 py-2 px-3 cursor-pointer border-zinc-500 bg-secondary text-main rounded-lg select-none" style="width: 320px;">
                         Показать все характеристики
                     </div>
                     <Teleport v-if="modal1 == true" to="#teleport-target">
@@ -157,6 +157,9 @@ console.log(items.characteristic)
             <div v-if="fb" class="text-center px-5 mt-4 col-span-4">
                 <textarea class="rounded-lg w-full resize-none p-1 text-lg" style="height: 83%;" placeholder="Ваш отзыв..."></textarea>
             </div>
+        </transition>
+        <transition name="fake">
+            <div v-if="fb" class="text-white grid bg-main rounded-lg py-2 col-span-3 col-start-3 cursor-pointer text-lg">Отправить</div>
         </transition>
         </div>
         <transition>
@@ -216,6 +219,12 @@ console.log(items.characteristic)
 .fade-enter-active {
   background-color: #18181B;
   animation: added 0.5s reverse;
+}
+.fake-leave-active {
+    animation: added 0.5 reverse;
+}
+.fake-enter-active {
+  animation: added 0.5s;
 }
 @keyframes added {
 from {

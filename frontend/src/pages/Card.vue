@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { auth_get } from "../requests.js";
 import { useRoute } from "vue-router";
 import Cardinfo from "../components/Cardinfo.vue";
+import Header from '../components/Header.vue';
 
 const id = useRoute()["query"]["id"];
 
@@ -26,6 +27,7 @@ auth_get(`/api/product/${id}`).then((res) => {
 </script>
 
 <template>
+  <div><Header></Header>
   <div class="grid" v-if="canRender">
     <Cardinfo
       :ListImg="Info.ListImg"
@@ -40,5 +42,6 @@ auth_get(`/api/product/${id}`).then((res) => {
       :minrating="Info.minrating"
       :maxrating="Info.maxrating"
     />
+  </div>
   </div>
 </template>
