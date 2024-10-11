@@ -81,6 +81,7 @@ def product(id):
         for j in [i.category for i in product.categories]:
             for n in j.criterion:
                 s.append(n)
+            print("SSSSSSSSSSSSSSSSS", s)
 
         random_choice = sample(s, 3)
         user_characteristic = [i.title for i in random_choice]
@@ -100,12 +101,17 @@ def product(id):
                }
     else:
         s = []
-        for j in [i.category for i in product.categories]:
+        for j in [i.category for i in list(product.categories)]:
             for n in j.criterion:
-                s.append(n)
-
-        random_choice = sample(s, 3)
-        user_characteristic = [i.title for i in random_choice]
+                print(n)
+                s.append(n.title)
+            print(j)
+        print("SSSSSSSSSSSSSSSSS", s)
+        try:
+            random_choice = sample(s, 3)
+        except Exception:
+            random_choice = s
+        user_characteristic = [i for i in random_choice]
 
         characteristic = product.characteristics
         res = {"title": product.title,
