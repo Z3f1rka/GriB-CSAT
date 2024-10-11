@@ -15,16 +15,6 @@ auth_get("/api/category/all").then((data) => {
 });
 
 const ListCards = ref([
-  { id: 1, title: "Бытовая техника", img: "/gendalf.jpg" },
-  {
-    id: 1,
-    title: "FFFFFF FFFFFFFFFFF FFFFFFFFFF FFFFFFF",
-    img: "/gendalf.jpg",
-  },
-  { id: 1, title: "Техника", img: "/gendalf.jpg" },
-  { id: 1, title: "Техника", img: "/gendalf.jpg" },
-  { id: 1, title: "Техника", img: "/gendalf.jpg" },
-  { id: 1, title: "Техника", img: "/gendalf.jpg" },
 ]);
 const FilteredCards = ref([]);
 const FilteredCateg = ref([]);

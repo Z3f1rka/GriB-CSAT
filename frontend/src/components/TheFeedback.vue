@@ -36,7 +36,7 @@ function submit(){
       rating: ListStars._rawValue,
     })
     var resp_data = auth_post('/api/feedback/add', {
-      feedback: { text: text.value, product_id:Number(items.id) },
+      feedback: { text: text.value, product_id:items.id },
       rating: ListStars._rawValue
     });
     if (resp_data) {

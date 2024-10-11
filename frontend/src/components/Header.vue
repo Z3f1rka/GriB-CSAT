@@ -15,16 +15,15 @@ if (localStorage.getItem('refresh_token')){
 else {
   isAuth.value = false
 }
-auth_get("/api/auth/get_user").then((res) => {
-  console.log(2)
-  status = res.role
+auth_get('/api/auth/get_user').then((res) => {
+  status.value = res.role
 })
 
 </script>
 
 <template>
   <header class="bg-zinc-900 text-white items-center">
-    <div class="flex justify-between" v-if="render">
+    <div class="flex justify-between">
       <router-link :to="{ path : '/' }">
       <div class="h-20">
         <img src="/logo.svg" class="w-full h-full" />
