@@ -16,7 +16,7 @@ from data import db_session
 
 
 app = Flask(__name__)
-access_token_life_time = timedelta(seconds=10)
+access_token_life_time = timedelta(minutes=10)
 refresh_token_life_time = timedelta(days=30)
 CORS(app)
 

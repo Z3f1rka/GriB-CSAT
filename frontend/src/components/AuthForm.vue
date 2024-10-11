@@ -113,7 +113,7 @@ function data() {
       </div>
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
         <input
-          type="text"
+          type="password"
           class="w-full h-full px-5 rounded"
           placeholder="Пароль"
           v-model="password"
@@ -124,7 +124,7 @@ function data() {
       </div>
       <div class="rounded row-span-1 col-span-6 col-start-2 h-10 w-full">
         <input
-          type="text"
+          type="password"
           class="w-full h-full px-5 rounded"
           placeholder="Повторите пароль"
           v-model="password_a"

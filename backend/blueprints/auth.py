@@ -147,8 +147,9 @@ def login():
 @auth.route('/refresh', methods=['POST'])
 def refresh():
     sess = db_session.create_session()
-    data = request.headers.get("authorization")
+    data = request.json["refresh_token"]
     payload = get_jwt_payload(data)
+    print(payload)
     if type(payload) != type(dict()):
         return make_response(payload, 400)
     session = sess.query(Session).filter(Session.uuid == payload['jti']).first()
