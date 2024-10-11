@@ -29,7 +29,7 @@ def products():
     for product in products:
         el = {"id": product.id,
               "title": product.title,
-              "img": product.photos[0]}
+              "img": product.photos[0].path}
         res.append(el)
     return res
 

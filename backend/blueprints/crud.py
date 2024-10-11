@@ -65,9 +65,6 @@ def upload_images():
 
 @crud.route("/send_image/<filename>", methods=["GET"])
 def send_image(filename):
-    payload = get_jwt_payload(request.headers.get("authorization"))
-    if type(payload) != type(dict()):
-        return make_response("Unathorized", 401)
     try:
         return send_from_directory(DESTINATION, filename) # TODO: посмотреть надо ли делать слеш
     except FileNotFoundError:

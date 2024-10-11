@@ -21,6 +21,7 @@ var err = ref("");
 var chooseCateg = ref([]);
 var selectedFile;
 var choosedFiles = ref([]);
+var toUpload = 0;
 
 auth_get("/api/category/all").then((data) => {
   categList.value = data;
@@ -36,7 +37,6 @@ function addFile() {
       id: choosedFiles.value.length,
       file: selectedFile,
     });
-    console.log(choosedFiles._rawValue);
   }
 }
 
@@ -66,6 +66,10 @@ async function uploadFile(file, product_id) {
         },
       }
     );
+    toUpload--
+    if (toUpload == 0){
+      router.push("/")
+    }
   } catch (error) {
     console.error(error);
     alert("Error uploading file.");
@@ -118,7 +122,6 @@ function data() {
     can_reg = false;
     err_categ.value = "Обязательное поле";
   }
-  console.log(can_reg);
   if (can_reg) {
     var resList = [];
     for (let i = 0; i < chooseCateg.value.length; i++) {
@@ -130,15 +133,12 @@ function data() {
       characteristics: characteristics.value,
       categories: resList,
     };
-    console.log(values);
     var resp_data;
     auth_post("/api/card/add", values).then((response) => {
-      console.log(response);
-      console.log(choosedFiles._rawValue);
       for (let i = 0; i < choosedFiles._rawValue.length; i++) {
         uploadFile(choosedFiles._rawValue[i], response.product_id);
       }
-      router.push("/");
+      toUpload = choosedFiles._rawValue.length;
     });
   }
 }
