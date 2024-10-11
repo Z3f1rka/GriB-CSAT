@@ -36,10 +36,6 @@ def products():
 
 @card.route("/product/<int:id>", methods=["GET"])
 def product(id):
-    data = request.headers.get("bearer")
-    jwt = get_jwt_payload(data)
-    if type(jwt) != type(dict()):
-        return make_response(jwt, 401)
     sess = db_session.create_session()
     product = sess.query(Product).filter(Product.id == id).first()
     if not product:
@@ -99,7 +95,8 @@ def product(id):
                "description": product.description,
                "feedback": for_res,
                'user_characteristic': user_characteristic,
-               'characteristic': characteristic
+               'characteristic': characteristic,
+               "ListImg": [i.path for i in product.photos]
                }
     else:
         s = []
@@ -119,6 +116,7 @@ def product(id):
                "description": product.description,
                "feedback": [],
                'user_characteristic': user_characteristic,
-               'characteristic': characteristic
+               'characteristic': characteristic,
+               "ListImg": [i.path for i in product.photos]
                }
     return res

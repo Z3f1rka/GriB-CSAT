@@ -24,6 +24,12 @@ const items = defineProps({
 const modal1 = ref(false)
 const show = ref(false)
 const fb = ref(false)
+
+var photos = [];
+for (let i = 0; i < items.ListImg.length; i++){
+    photos.push({img: `http://127.0.0.1:8080/api/send_image/${items.ListImg[i]}`, id: i})
+}
+console.log(items.characteristic)
 </script>
 
 <template>
@@ -34,7 +40,7 @@ const fb = ref(false)
                 :items-to-show="1.5"
                 :wrap-around="true"
             >
-                <Slide v-for="img in ListImg" :key="img.id">
+                <Slide v-for="img in photos" :key="img.id">
                     <div class="carousel__item">
                         <img 
                             class="bg-no-repeat bg-cover h-full rounded-lg"
