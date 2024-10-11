@@ -58,8 +58,11 @@ function data() {
   } else {
     err_pass.value = "";
   }
-  if (role) {
+  if (role._rawValue) {
     data_role = "vendor";
+  }
+  if (!role._rawValue) {
+    data_role = "user";
   }
   if (can_reg) {
     const values = {

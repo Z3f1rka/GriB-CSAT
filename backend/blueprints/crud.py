@@ -352,7 +352,7 @@ def add():
         return make_response(f"The requester is not user", 403)
 
     # TODO: сделать валидацию входящих  данных
-
+    print(data.keys())
     feedback = Feedback(text=data['feedback']['text'],
                         product_id=data['feedback']['product_id'],
                         user_id=payload['sub'])
@@ -360,10 +360,10 @@ def add():
     sess.commit()
 
     feedback_id = sess.query(Feedback).all()[-1]
-    for i in data['ratings']:
+    for i in data['rating']:
         rating = Rating(rating=i['rating'],
-                        feedback_id=feedback_id,
-                        criterion_id=i["criterion"])
+                        feedback_id=feedback_id.id,
+                        criterion_id=sess.query(Criterion).filter(Criterion.title == i["criterion"]).first().id)
         sess.add(rating)
     sess.commit()
     return make_response("OK", 200)
