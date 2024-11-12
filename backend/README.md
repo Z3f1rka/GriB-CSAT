@@ -39,3 +39,17 @@ pip install -r requirements.txt
 ```bash
 python server.py
 ```
+
+Запускать тесты в порядке:
+```bash
+python -m pytest "test/test_auth.py"
+```
+```bash
+python -m pytest "test/test_category.py"
+```
+```bash
+python -m pytest "test/test_card.py"
+```
+```bash
+python -m pytest "test/test_feedback.py"
+```
