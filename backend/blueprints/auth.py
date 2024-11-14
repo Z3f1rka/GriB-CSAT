@@ -169,6 +169,9 @@ def get_user():
     payload = get_jwt_payload(data)
     if type(payload) != type(dict()):
         return make_response(payload, 401)
-    user = sess.query(User).filter(User.id == payload['sub']).first().to_dict()
-    user.pop("hashed_password")
-    return jsonify(user)
+    user = sess.query(User).filter(User.id == payload['sub']).first()
+    user = {"id": user.id,
+        "role": user.role,
+        "email": user.email,
+        "name": user.name}
+    return user
